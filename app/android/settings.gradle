@@ -1,0 +1,3 @@
+rootProject.name = 'reactnativeoauth2'
+
+include ':app'
