@@ -73,14 +73,16 @@ function getCurrentUser() {
   });
 }
 
-function loginUser({token_url, client_id, code, code_verifier}) {
-  const url = token_url + "?" + qs({client_id, code, code_verifier});
-  console.log(token_url);
-  return fetch(token_url, {
-    method: "POST",
-    body: qs({client_id, code, code_verifier}) // TODO: Proper request
-  }).then(res.json());
+function loginUser(loginProvider, code) {
+  return retrieveCodeVerifier().then(code_verifier => {
+    const {token_url, client_id} = loginProvider;
+    return fetch(token_url, {
+      method: "POST",
+      body: qs({client_id, code, code_verifier}) // TODO: Proper request
+    }).then(res => res.json());
+  });
 }
+
 
 const UserContext = React.createContext();
 
@@ -160,19 +162,21 @@ export default class App extends React.Component {
 
   componentDidMount() {
     if (!this.state.user) {
+      // TODO: Only do this if logging in!
       Linking.getInitialURL().then(url => {
         console.log({url});
   
         if (url && url.startsWith("https://www.example.com/oauth2/")) {
           // TODO: loginUser(url.query.code)
-          retrieveCodeVerifier().then(code_verifier => {
-            const code = "url.query.code";
-            const {token_url, client_id} = idPorten;
-            loginUser({token_url, client_id, code, code_verifier}).then(user => {
-              this.setState({user});
-            }).catch(e => {
-              console.error(e);
-            });
+
+          // TODO Get provider from path
+          // TODO Get code from query
+          const code = "url.query.code";
+          loginUser(idPorten, code).then(user => {
+            this.setState({user})
+          }).catch(error => {
+            console.error(error);
+            this.setState({error});
           });
         }
       });
