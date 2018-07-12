@@ -25,35 +25,7 @@ When developing native applications, including React Native, the strongly recomm
 7. The backend server receives access_token and optionally identity_tokens and refresh_tokens. It uses these to establish the user's identity
 8. The backend server returns the login information to the app, where it can be displayed to the user
 
-actor user
-participant app
-participant browser
-participant mobile
-participant backend
-participant provider
-
-user -> app: Opens app
-user <-- app: Display login options
-user -> app: Select login option
-app -> app: create and store code_verifier
-app -> app: code_challenge = sha256(code_verifier)
-user <-- app: Authorization url, client_id, code_challenge, return_uri
-user -> browser: Authorization url
-browser -> provider: Authorization url, client_id, code_challenge, return_uri
-browser <-- provider: Login page
-user -> browser: Username, password, consent
-browser -> provider: Username, password, consent
-browser <-- provider: redirect_uri, code
-browser -> mobile: Find app for redirect_uri
-mobile -> app: redirect_uri, code
-app -> app: Lookup code_verifier
-app -> backend: client_id, code_verifier, code
-backend -> provider: client_id, client_secre, code_verifier, code
-backend <-- provider: access_token, id_token, refresh_token
-backend -> backend: Decode username, organization from id_token
-app <-- backend: username, organization
-user <-- app: Display appropriate information for username in organization
-
+![Sequence Diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.github.com/jhannes/react-native-oauth-demo/doc/react-native-oauth2-sequence.puml)
 
 With the theory out of the way, let's get started.
 
@@ -244,9 +216,9 @@ See the complete code on my github account.
 
 
 
+Todo: Here is some code that I should use somewhere better.
 
-
-
+```
 componentDidMount() {
 	const {user, loginProvider} = this.state;
 	if (!user && loginProvider) {
@@ -306,3 +278,4 @@ render() {
 }
 
 
+```
