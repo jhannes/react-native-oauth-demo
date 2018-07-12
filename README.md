@@ -25,7 +25,7 @@ When developing native applications, including React Native, the strongly recomm
 7. The backend server receives access_token and optionally identity_tokens and refresh_tokens. It uses these to establish the user's identity
 8. The backend server returns the login information to the app, where it can be displayed to the user
 
-![Sequence Diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.github.com/jhannes/react-native-oauth-demo/doc/react-native-oauth2-sequence.puml)
+![Sequence Diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.github.com/jhannes/react-native-oauth-demo/master/doc/react-native-oauth2-sequence.puml)
 
 With the theory out of the way, let's get started.
 
@@ -33,7 +33,7 @@ With the theory out of the way, let's get started.
 
 I will be demonstrating the app on Android. You need ANDROID_SDK and an emulator to play along.
 
-```
+```bash
 npm install -g react-native-cli
 react-native init MyAuthenticatedApp
 npm install
@@ -48,7 +48,7 @@ I recommend using Visual Studio Code for React Native development. Open the MyAu
 
 ### Step 2: Redirect unauthenticated users to log in
 
-```
+```javascript
 class App extends React.Component {
 	state = {};
 
@@ -65,7 +65,7 @@ class App extends React.Component {
 
 The LoginView lets the user choose how to log in:
 
-```
+```javascript
 class LoginView extends React.Component {
 	state = {}
 
@@ -124,8 +124,30 @@ When you run this application, the app will open an external web browser on devi
 
 In order to handle the redirect back to the application, your application must register the URI with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file:
 
-```
-
+```xml
+<application
+	android:name=".MainApplication"
+	android:label="@string/app_name"
+	android:icon="@mipmap/ic_launcher"
+	android:allowBackup="false"
+	android:launchMode="singleTask"
+	android:theme="@style/AppTheme">
+	<activity
+	android:name=".MainActivity"
+	android:label="@string/app_name"
+	android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+	android:windowSoftInputMode="adjustResize">
+	<intent-filter>
+		<action android:name="android.intent.action.MAIN" />
+		<category android:name="android.intent.category.LAUNCHER" />
+	</intent-filter>
+	<intent-filter android:label="filter_react_native">
+		<action android:name="android.intent.action.VIEW"/>
+		<category android:name="android.intent.category.DEFAULT"/>
+		<category android:name="android.intent.category.BROWSABLE"/>
+		<data android:scheme="https" android:host="www.example.com" android:pathPrefix="/oauth2" />
+	</intent-filter>
+</activity>
 ```
 
 *You have to restart the debugger and run `npm run android` (or F5 in VS Code) to pick up changes in the `AndroidManifest.xml`.*
@@ -135,7 +157,7 @@ On iOS, read the manual to see how this is done. [link to react native manual]
 
 When the application is reopened, we can get the appropriate information by calling Linking.getCurrentURL()
 
-```
+```javascript
 class App extends React.Component {
 
 	componentDidMount() {
@@ -164,7 +186,7 @@ class App extends React.Component {
 
 Importantly, the `token_uri` *should not* be the real token URI for the login provider. Instead, it should be your own backend. In my case, I implemented this with Express:
 
-```
+```javascript
 app.post('/oauth2/:provider/token', (res, req) => {
 	const {client_id, code, code_verifier, redirect_uri} = res.body;
 	const loginProvider = providers[res.provider];
@@ -184,7 +206,7 @@ app.post('/oauth2/:provider/token', (res, req) => {
 
 Now all that's left is to display the user information
 
-```
+```javascript
 class App extends React.Component {
 	state = {};
 
@@ -218,7 +240,7 @@ See the complete code on my github account.
 
 Todo: Here is some code that I should use somewhere better.
 
-```
+```javascript
 componentDidMount() {
 	const {user, loginProvider} = this.state;
 	if (!user && loginProvider) {
