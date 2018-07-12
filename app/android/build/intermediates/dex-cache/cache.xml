@@ -3,30 +3,21 @@
 
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\drawee\1.3.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-okhttp3\1.3.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="c65a2e39d54023bac3aef64a2f0cff89289c7ff6">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-drawee-1.3.0_e3d259dc0f738363a0cd03d348f4281bb82bdd1d.jar" />
+        sha1="c03c08c9934b23c8c09c803345ec51a74119127b">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-okhttp3-1.3.0_53250fcd8bba04431eb96e3cf7e41e7076a5d0c4.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fresco\1.3.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\classes.jar"
         jumboMode="false"
         optimize="true"
-        revision="23.0.1"
-        sha1="fe85b87215e405f5917d40ae4960488ac9224b74">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fresco-1.3.0_503e9e30768b834bfbdda3eea50ea390953718ce.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.m2\repository\com\google\code\findbugs\jsr305\3.0.0\jsr305-3.0.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="5871fb60dc68d67da54a663c3fd636a10a532948">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\jsr305-3.0.0_b26bc120a1dcb9283bd2fb64056207c20854e355.jar" />
+        revision="23.0.3"
+        sha1="e31331bdf6b5952badadbfc171f04b95c55d3b16">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.react-react-native-0.55.4_fa148644d9e479adcfafa5664cb24cde7213433c.jar" />
     </item>
     <item
         is-multidex="false"
@@ -35,79 +26,34 @@
         optimize="true"
         revision="23.0.3"
         sha1="1fce89a6428c51467090d7f424e4c9c3dbd55f7e">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\support-annotations-23.0.1_72e53094768b1e41464ca0b1c7a963a94fdc94d1.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\support-annotations-23.0.1_72e53094768b1e41464ca0b1c7a963a94fdc94d1.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline\1.3.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.soloader\soloader\0.1.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
-        revision="23.0.1"
-        sha1="48c7f54c2515a2312d3a4481d10c43fbb807f3af">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-1.3.0_8aab66430cb93ffde8c47094c226c8f3593ab439.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-okhttp3\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="c03c08c9934b23c8c09c803345ec51a74119127b">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-okhttp3-1.3.0_3fd5ad92834ef01b60deb8e7cebda1be4920e43c.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.soloader\soloader\0.1.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
+        revision="23.0.3"
         sha1="8f615bca00639150c9eb6175d4b5471193f70794">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.soloader-soloader-0.1.0_02a1af2c9f43c7a01d8708f56c1df38b7ca22b2e.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.soloader-soloader-0.1.0_bda30653aadd99fec1016a1c88e72a611aedb9bc.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.m2\repository\javax\inject\javax.inject\1\javax.inject-1.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="6975da39a7040257bd51d21a231b76c915872d38">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\javax.inject-1_cc6911beb1fda31677126c38e921495ccdcaa1af.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.m2\repository\com\squareup\okhttp3\okhttp\3.6.0\okhttp-3.6.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="69edde9fc4b01c9fd51d25b83428837478c27254">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okhttp-3.6.0_9376448bbd5c5e0364b17c86645b31006e798556.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\libs\infer-annotations-4.0.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.android.support-appcompat-v7-23.0.1_beba5b4d806dba5d9fda1e6e179e8c7b15c430e0.jar" />
+        sha1="9809e90be788acdb479b2b44e2112f3295a03068">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\infer-annotations-4.0_5e7a9e4d135a3cecaab207eca2ade636c3d28d24.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-base\1.3.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fbcore\1.3.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="72128af126ddd7d6252da9357fe560d3abcdfb0c">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-base-1.3.0_d80ed63f5ddd63209c8273da968f5bbe066b0c02.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\libs\internal_impl-23.0.1.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.1_444c1889f784777934b3a591a3399dcf7850be17.jar" />
+        sha1="37345de2ed2772f385eaeec37a9c2ff0fea99ad7">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fbcore-1.3.0_0318111a664d3acb328944a6a7d80794f232d6af.jar" />
     </item>
     <item
         is-multidex="false"
@@ -116,16 +62,16 @@
         optimize="true"
         revision="23.0.3"
         sha1="3f9b16b774f2c36cfd86dd2053d0b3059531dacc">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okhttp-urlconnection-3.6.0_0e33103da463893aaa94d3b375af6ad4ec1d3f8a.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\okhttp-urlconnection-3.6.0_0e33103da463893aaa94d3b375af6ad4ec1d3f8a.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\libs\infer-annotations-4.0.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fbui.textlayoutbuilder\textlayoutbuilder\1.0.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
-        revision="23.0.1"
-        sha1="9809e90be788acdb479b2b44e2112f3295a03068">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\infer-annotations-4.0_ea942b3620b495ad0c48463fbfb5e3b425e75e83.jar" />
+        revision="23.0.3"
+        sha1="f90b593491e4044903f0bbf68dc3fa2790b151b9">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fbui.textlayoutbuilder-textlayoutbuilder-1.0.0_226de6338e8ab9cd4ba29151bc8c7af5606e5c53.jar" />
     </item>
     <item
         is-multidex="false"
@@ -134,7 +80,7 @@
         optimize="true"
         revision="23.0.3"
         sha1="d85884acf6810a3bbbecb587f239005cbc846dc4">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\bolts-tasks-1.4.0_249c08de215b4abc71029d547cd9ba6ab1d30260.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\bolts-tasks-1.4.0_249c08de215b4abc71029d547cd9ba6ab1d30260.jar" />
     </item>
     <item
         is-multidex="false"
@@ -143,34 +89,16 @@
         optimize="true"
         revision="23.0.3"
         sha1="69edde9fc4b01c9fd51d25b83428837478c27254">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okhttp-3.6.0_9376448bbd5c5e0364b17c86645b31006e798556.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\okhttp-3.6.0_9376448bbd5c5e0364b17c86645b31006e798556.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fbui.textlayoutbuilder\textlayoutbuilder\1.0.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\drawee\1.3.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="f90b593491e4044903f0bbf68dc3fa2790b151b9">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fbui.textlayoutbuilder-textlayoutbuilder-1.0.0_215125b455bf4d01320e267a95830f5977bf8524.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fbcore\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="37345de2ed2772f385eaeec37a9c2ff0fea99ad7">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fbcore-1.3.0_355b889062af5cb880b1e078d18d07f385e77d11.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\drawee\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
         sha1="c65a2e39d54023bac3aef64a2f0cff89289c7ff6">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-drawee-1.3.0_e3d259dc0f738363a0cd03d348f4281bb82bdd1d.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-drawee-1.3.0_8379f4aa55a438ab3e9a4e399b5eeb8f7276794d.jar" />
     </item>
     <item
         is-multidex="false"
@@ -179,61 +107,7 @@
         optimize="true"
         revision="23.0.3"
         sha1="5871fb60dc68d67da54a663c3fd636a10a532948">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\jsr305-3.0.0_b26bc120a1dcb9283bd2fb64056207c20854e355.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="e31331bdf6b5952badadbfc171f04b95c55d3b16">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.react-react-native-0.55.4_e58651fe128c24ba3bdcee421a19ecf713608df7.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.gradle\caches\modules-2\files-2.1\com.facebook.fbui.textlayoutbuilder\staticlayout-proxy\1.0\f162442a19fff13995fbd51ba414d9ee05579080\staticlayout-proxy-1.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="f162442a19fff13995fbd51ba414d9ee05579080">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\staticlayout-proxy-1.0_dc490d43153308da6df38e06d2abba54e07f479e.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.gradle\caches\modules-2\files-2.1\com.squareup.okio\okio\1.13.0\a9283170b7305c8d92d25aff02a6ab7e45d06cbe\okio-1.13.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="a9283170b7305c8d92d25aff02a6ab7e45d06cbe">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okio-1.13.0_283a4e00b474d3bc3fce02379660be91b478ff30.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\AppData\Local\Android\Sdk\extras\android\m2repository\com\android\support\support-annotations\23.0.1\support-annotations-23.0.1.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="1fce89a6428c51467090d7f424e4c9c3dbd55f7e">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\support-annotations-23.0.1_72e53094768b1e41464ca0b1c7a963a94fdc94d1.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-okhttp3\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="c03c08c9934b23c8c09c803345ec51a74119127b">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-okhttp3-1.3.0_3fd5ad92834ef01b60deb8e7cebda1be4920e43c.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fresco\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="fe85b87215e405f5917d40ae4960488ac9224b74">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fresco-1.3.0_503e9e30768b834bfbdda3eea50ea390953718ce.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\jsr305-3.0.0_b26bc120a1dcb9283bd2fb64056207c20854e355.jar" />
     </item>
     <item
         is-multidex="false"
@@ -242,7 +116,7 @@
         optimize="true"
         revision="23.0.3"
         sha1="6975da39a7040257bd51d21a231b76c915872d38">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\javax.inject-1_cc6911beb1fda31677126c38e921495ccdcaa1af.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\javax.inject-1_cc6911beb1fda31677126c38e921495ccdcaa1af.jar" />
     </item>
     <item
         is-multidex="false"
@@ -251,79 +125,7 @@
         optimize="true"
         revision="23.0.3"
         sha1="a9283170b7305c8d92d25aff02a6ab7e45d06cbe">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okio-1.13.0_283a4e00b474d3bc3fce02379660be91b478ff30.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="c31e21b53ff2f74664e498248d01453a32e32d48">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-23.0.1_70c5734de7ed8b671e7b9312714e9d977e44e824.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="e31331bdf6b5952badadbfc171f04b95c55d3b16">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.react-react-native-0.55.4_e58651fe128c24ba3bdcee421a19ecf713608df7.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-base\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="72128af126ddd7d6252da9357fe560d3abcdfb0c">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-base-1.3.0_d80ed63f5ddd63209c8273da968f5bbe066b0c02.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.android.support-appcompat-v7-23.0.1_beba5b4d806dba5d9fda1e6e179e8c7b15c430e0.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.soloader\soloader\0.1.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="8f615bca00639150c9eb6175d4b5471193f70794">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.soloader-soloader-0.1.0_02a1af2c9f43c7a01d8708f56c1df38b7ca22b2e.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\libs\internal_impl-23.0.1.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.1_444c1889f784777934b3a591a3399dcf7850be17.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline\1.3.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.3"
-        sha1="48c7f54c2515a2312d3a4481d10c43fbb807f3af">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-1.3.0_8aab66430cb93ffde8c47094c226c8f3593ab439.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fbui.textlayoutbuilder\textlayoutbuilder\1.0.0\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="f90b593491e4044903f0bbf68dc3fa2790b151b9">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fbui.textlayoutbuilder-textlayoutbuilder-1.0.0_215125b455bf4d01320e267a95830f5977bf8524.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\okio-1.13.0_283a4e00b474d3bc3fce02379660be91b478ff30.jar" />
     </item>
     <item
         is-multidex="false"
@@ -332,52 +134,61 @@
         optimize="true"
         revision="23.0.3"
         sha1="f162442a19fff13995fbd51ba414d9ee05579080">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\staticlayout-proxy-1.0_dc490d43153308da6df38e06d2abba54e07f479e.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\staticlayout-proxy-1.0_dc490d43153308da6df38e06d2abba54e07f479e.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-tasks\1.4.0\d85884acf6810a3bbbecb587f239005cbc846dc4\bolts-tasks-1.4.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="d85884acf6810a3bbbecb587f239005cbc846dc4">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\bolts-tasks-1.4.0_249c08de215b4abc71029d547cd9ba6ab1d30260.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fbcore\1.3.0\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline-base\1.3.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="37345de2ed2772f385eaeec37a9c2ff0fea99ad7">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fbcore-1.3.0_355b889062af5cb880b1e078d18d07f385e77d11.jar" />
+        sha1="72128af126ddd7d6252da9357fe560d3abcdfb0c">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-base-1.3.0_3c2868e0a35a415772683d252512811a18fbccf8.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\.gradle\caches\modules-2\files-2.1\com.squareup.okhttp3\okhttp-urlconnection\3.6.0\3f9b16b774f2c36cfd86dd2053d0b3059531dacc\okhttp-urlconnection-3.6.0.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="23.0.1"
-        sha1="3f9b16b774f2c36cfd86dd2053d0b3059531dacc">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\okhttp-urlconnection-3.6.0_0e33103da463893aaa94d3b375af6ad4ec1d3f8a.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.facebook.react\react-native\0.55.4\jars\libs\infer-annotations-4.0.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\fresco\1.3.0\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
-        sha1="9809e90be788acdb479b2b44e2112f3295a03068">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\infer-annotations-4.0_ea942b3620b495ad0c48463fbfb5e3b425e75e83.jar" />
+        sha1="fe85b87215e405f5917d40ae4960488ac9224b74">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-fresco-1.3.0_1f90dd248e53a4fed8ed3f4cabd0d1f0b007e916.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\classes.jar"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.android.support-appcompat-v7-23.0.1_994f88ac42f03a45e59004aad8637f5dfd325cf4.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\libs\internal_impl-23.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.1_1c1e243ebfff55e546656ec4534324e68bed2784.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.facebook.fresco\imagepipeline\1.3.0\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="48c7f54c2515a2312d3a4481d10c43fbb807f3af">
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.facebook.fresco-imagepipeline-1.3.0_24531e4948c9e83ef862f7f32973e78f9e1a35c6.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="23.0.3"
         sha1="c31e21b53ff2f74664e498248d01453a32e32d48">
-        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth2\android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-23.0.1_70c5734de7ed8b671e7b9312714e9d977e44e824.jar" />
+        <dex dex="E:\Profiles\jbrodwal\Desktop\Experiments\react-native-oauth-demo\app\android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-23.0.1_b4db02a9b62f058fae1c128cbbb12ec259b03850.jar" />
     </item>
 
 </items>
