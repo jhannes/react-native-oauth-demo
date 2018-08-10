@@ -36,8 +36,9 @@ I will be demonstrating the app on Android. You need ANDROID_SDK and an emulator
 ```bash
 npm install -g react-native-cli
 react-native init MyAuthenticatedApp
+cd MyAuthenticationApp
 npm install
-npm run android
+react-native run-android
 ```
 
 I recommend using Visual Studio Code for React Native development. Open the MyAuthenticatedApp directory in Code and install the React Native extension. If you press F5 (debug), you should be given the option to add a React Native launch configuration and you should be all set.
@@ -49,7 +50,10 @@ I recommend using Visual Studio Code for React Native development. Open the MyAu
 ### Step 2: Redirect unauthenticated users to log in
 
 ```javascript
-class App extends React.Component {
+import React from 'react';
+import {View, Text, Button} from 'react-native';
+
+export default class App extends React.Component {
 	state = {};
 
 	render() {
@@ -79,7 +83,7 @@ class LoginView extends React.Component {
 		if (loginProvider) {
 			return (
 				<View>
-					<Text>Logging you in with {loginProvider.title}</Text>
+					<Text>Logging you in with {loginProvider.name}</Text>
 				</View>);
 		}
 		return (
