@@ -1,6 +1,6 @@
 # Building React Native applications with Oauth2 for Azure AD and ID-porten
 
-In this tutorial, I will walk you through setting up a React Native application to autenticate with some important Oauth2 providers.
+In this tutorial, I will walk you through setting up a React Native application to autenticate with some important Oauth2 providers: Google, Azure Active Directory and (for Norwegians) ID-porten.
 
 If your application can know which user it talks with for sure, you can do anything. If you cannot trust your user, you can do nothing.
 
@@ -31,100 +31,190 @@ With the theory out of the way, let's get started.
 
 ### Step 1: Create a React Native application
 
-I will be demonstrating the app on Android. You need ANDROID_SDK and an emulator to play along.
+I will be demonstrating the app on Android, but it will work more or less the same in iOS. You need ANDROID_SDK and an emulator to play along.
 
 ```bash
 npm install -g react-native-cli
-react-native init MyAuthenticatedApp
-cd MyAuthenticationApp
+react-native init MyAuthorizationApp
+cd MyAuthorizationApp
 npm install
 react-native run-android
+# Some dependencies for later
+npm install --save qs base64url fast-sha256 random-string
 ```
 
-I recommend using Visual Studio Code for React Native development. Open the MyAuthenticatedApp directory in Code and install the React Native extension. If you press F5 (debug), you should be given the option to add a React Native launch configuration and you should be all set.
+I recommend using Visual Studio Code for React Native development. Open the MyAuthorizationApp directory in Code and install the React Native extension. Select Debug > Add Configuration and add React Native. Now you can simply press F5 to start the debugger.
 
 ### Setting up the login provider (using Google as an example)
 
-...
+Every login provider will require some setup. For Google, this is what you need to do:
+
+1. Create a new project in [Google APIs developer console](https://console.developers.google.com/projectcreate)
+2. After you have selected a name, you need to wait a couple of minutes for the project to be created
+3. Go to the [API credentials](https://console.developers.google.com/apis/credentials) screen
+4. Select "Create credential" > "Oauth client" and select Application type "Web application"
+5. Authorized redirect URIs are the most important. For now, let's just configure localhost.
+   We need the redirect URIs to specify which login provider we're dealing with, so
+   http://localhost:3000/oauth2/google/oauth2callback is a good redirect URI
+6. When you complete the registration, you will get a client id and a client secret. At first
+   we will need to save the client id to a file named `.env`:
+   ```
+   GOOGLE_CLIENT_ID=...
+   GOOGLE_REDIRECT_URI=http://localhost:3000/oauth2/google/oauth2callback
+   ```
+7. We will use [React Native Config](https://github.com/luggit/react-native-config) to
+   handle the configuration. Run `npm install react-native-config --save-dev` to
+   install it, and put the line `react-native link react-native-config` to install
+   the platform modules.
 
 ### Step 2: Redirect unauthenticated users to log in
 
+Update the `App` in `App.js`
+
 ```javascript
 import React from 'react';
-import {View, Text, Button} from 'react-native';
+import {Platform, StyleSheet, Text, View, Button} from 'react-native';
 
 export default class App extends React.Component {
-	state = {};
+  state = {};
 
-	render() {
-		const {user} = this.state;
-
-		if (!user) {
-			return <LoginView />;
-		}
-		// Display default 
-	}
+  render() {
+    const {user} = this.state;
+    if (!user) {
+    return (
+      <View style={styles.container}>
+        <LoginView />
+        </View>
+      );
+    }
+    // Keep the existing code
+  }
 }
 ```
 
 The LoginView lets the user choose how to log in:
 
 ```javascript
+const loginProviders = {
+  google: {
+    title: "Log in with Google"
+  },
+  azure: {
+    title: "Log in with your organization"
+  },
+  idPorten: {
+    title: "Log in with ID-porten"
+  }
+};
+
 class LoginView extends React.Component {
-	state = {}
+  state = {}
 
-	handleLogin = (loginProvider) => {
-		this.setState({loginProvider});
-	}
+  handleLogin = (key) => {
+    const loginProvider = loginProviders[key];
+    this.setState({loginProvider});
+  }
 
-	render() {
-		const {loginProvider} = this.state;
+  render() {
+    const {loginProvider} = this.state;
+    const handleLogin = this.handleLogin;
 
-		if (loginProvider) {
-			return (
-				<View>
-					<Text>Logging you in with {loginProvider.name}</Text>
-				</View>);
-		}
-		return (
-			<View>
-				<Text>Choose how you want to log in</Text>
-				<Button
-					title="Google"
-					onClick={() => this.handleLogin(googleLogin)} />
-				<Button
-					title="Active Directory"
-					onClick={() => this.handleLogin(azureAdLogin)} />
-				<Button
-					title="ID-porten"
-					onClick={() => this.handleLogin(idPortenLogin)} />
-			</View>
-		);
-	}
+    if (loginProvider) {
+      return <Text>Logging you in with {loginProvider.title}</Text>;
+    }
+
+    return (
+      <View>
+        <Text>Choose how you want to log in</Text>
+        {Object.entries(loginProviders).map(([key,provider]) =>
+          <Button title={provider.title} onPress={() => handleLogin(key)} key={key} />)}
+      </View>
+    );
+  }
 }
 ```
 
+If you run this code, you will be presented with the login options, but nothing much will happen when you select one.
+
 ### Handle the login
 
-When the user selects a login provider, we need to redirect to that provider:
+When the user selects a login provider, we need to create an authorization URL and open a browser to that URL:
 
-	handleLogin = (loginProvider) => {
-		this.setState({loginProvider});
+```javascript
+import {Platform, StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
+import Config from 'react-native-config'; // We added this with npm install --save react-native-config
+import qs from 'qs'; // npm install --save qs
+import randomString from 'random-string'; // npm install --save random-string
+// ...
 
-		const code_verified = randomString();
-		AsyncStorage.setItem("code_verifier").then(() => {
-			const {client_id, auth_uri, redirect_uri} = loginProvider;
-			const code_challege = sha256(code_verifier);
-			const code_challeng_method = "s256";
-			const params = {client_id, code_challenge, code_challenge_method, redirect_uri};
-			const url = auth_uri + "?" + qs(params);
-			Linking.openURL(url);
-		});
-	}
+const loginProviders = {
+  // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
+  // For Administration, see https://console.developers.google.com/apis/credentials
+  google: {
+    title: "Log in with Google",
+    client_id: Config.GOOGLE_CLIENT_ID,
+    redirect_uri: Config.GOOGLE_REDIRECT_URI,
+    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    token_endpoint: Config.BACKEND + "/oauth2/google/token"
+  },
+  // We'll get around to the others later
 
-When you run this application, the app will open an external web browser on device with the appropriate login screen. Of course, the redirect_uri needs to bring the user back to the application.
+// ...
+
+  handleLogin = (key) => {
+    const loginProvider = loginProviders[key];
+    this.setState({loginProvider});
+    const {client_id, authorization_endpoint, redirect_uri, response_type, scope} = loginProvider;
+
+    // PKCE - https://tools.ietf.org/html/rfc7636
+    const code_verifier = randomString({length: 40});
+    const code_challenge = base64url(sha256(code_verifier));
+    const code_challenge_method = "S256";
+
+    const params = {client_id, code_challenge, code_challenge_method, redirect_uri, response_type, scope};
+    const authorizationUrl = authorization_endpoint + "?" + qs.stringify(params);
+
+    AsyncStorage.setItem("code_verifier", code_verifier).then(() => {
+        Linking.openURL(authorizationUrl);
+    }).catch(console.warn);
+  }
+```
+
+When you run this application, the app will open an external web browser on device with the appropriate login screen. Of course, the redirect_uri needs to bring the user back to the application. Right now it just goes to a URL where nothing lives.
 
 ### Handle the redirect
+
+When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the redirect_uri. For development purposes, we set this to http://localhost:3000. When you debug in the iPhone emulator, localhost URLs will automatically redirect to the host computer. In order to achieve the same in Android, just use the following ADB command:
+
+`adb reverse tcp:3000 tcp:3000`
+
+With that out of the way, we need to run a web server that will handle the redirect and redirect the user again, this time to an application URL. Let's create the server with Express.
+
+```bash
+mkdir MyAuthorizationServer
+cd MyAuthorizationServer
+npm init -y
+npm install --save express
+```
+
+A simple `server.js`-file is all that's needed:
+
+```
+const express = require('express')
+const app = express()
+
+app.get('/oauth2/:loginProvider/auth', (req, res) => {
+    const returnUrl = redirect_uri + "?" + req.query;
+    res.redirect(returnUrl);
+});
+
+app.listen(3000, () => console.log('Example app listening on port 3000!'))
+```
+
+
+
+
+### Handle the redirect (Android)
 
 In order to handle the redirect back to the application, your application must register the URI with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file:
 
@@ -149,15 +239,25 @@ In order to handle the redirect back to the application, your application must r
 		<action android:name="android.intent.action.VIEW"/>
 		<category android:name="android.intent.category.DEFAULT"/>
 		<category android:name="android.intent.category.BROWSABLE"/>
-		<data android:scheme="https" android:host="www.example.com" android:pathPrefix="/oauth2" />
+		<data android:scheme="http" android:host="localhost" android:pathPrefix="/oauth2" />
 	</intent-filter>
 </activity>
 ```
 
 *You have to restart the debugger and run `npm run android` (or F5 in VS Code) to pick up changes in the `AndroidManifest.xml`.*
 
+### Handle the redirect (iOS)
 
-On iOS, read the manual to see how this is done. [link to react native manual]
+iOS normally does not like apps to handle http(s) URLs. Instead, you should set up XCode to handle `myoauth2app://`-urls. See https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app. In React Native, you need to do make the following changes:
+
+1. Update the app info.plist to contain `myoauth2app` as a URL
+2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See https://facebook.github.io/react-native/docs/linking
+
+However, Open ID providers don't let you use custom URL schemes like `myoauth2app://` for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:3000 works for the iOS emulator) which redirects back to the app URL.
+
+...
+
+### Requesting access token
 
 When the application is reopened, we can get the appropriate information by calling Linking.getCurrentURL()
 
@@ -171,6 +271,7 @@ class App extends React.Component {
 
 				const {code} = parseUrl(url).query;
 				AsyncStorage.getItem("code_verifier").then(code_verifier => {
+					AsyncStorage.removeItem("code_verifier");
 					const {token_uri, client_id, redirect_uri} = loginProvider;
 					const payload = {
 						client_id, code, code_verifier, redirect_uri
