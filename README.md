@@ -193,7 +193,7 @@ With that out of the way, we need to run a web server that will handle the redir
 ```bash
 mkdir MyAuthorizationServer
 cd MyAuthorizationServer
-npm init -y
+npm init --yes
 npm install --save express
 ```
 
@@ -203,20 +203,17 @@ A simple `server.js`-file is all that's needed:
 const express = require('express')
 const app = express()
 
-app.get('/oauth2/:loginProvider/auth', (req, res) => {
-    const returnUrl = redirect_uri + "?" + req.query;
-    res.redirect(returnUrl);
+app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
+    res.redirect('myoauth2app://' + req.url);
 });
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
 ```
 
 
-
-
 ### Handle the redirect (Android)
 
-In order to handle the redirect back to the application, your application must register the URI with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file:
+In order to handle the redirect back to the application, your application must register the `myoauth2app` URI scheme with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file:
 
 ```xml
 <application
@@ -235,11 +232,11 @@ In order to handle the redirect back to the application, your application must r
 		<action android:name="android.intent.action.MAIN" />
 		<category android:name="android.intent.category.LAUNCHER" />
 	</intent-filter>
-	<intent-filter android:label="filter_react_native">
+	<intent-filter>
 		<action android:name="android.intent.action.VIEW"/>
 		<category android:name="android.intent.category.DEFAULT"/>
 		<category android:name="android.intent.category.BROWSABLE"/>
-		<data android:scheme="http" android:host="localhost" android:pathPrefix="/oauth2" />
+		<data android:scheme="myoauth2app" />
 	</intent-filter>
 </activity>
 ```
