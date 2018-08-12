@@ -4,19 +4,20 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
-import Config from 'react-native-config';
+import {StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
 import qs from 'qs'; // npm install --save qs
 import randomString from 'random-string'; // npm install --save random-string
-import sha256 from 'fast-sha256'; // npm install --save fast-sha256
-import base64url from 'base64url'; // npm install --save base64url
+import URL from 'url-parse'; // npm install --save url-parse
+import Hashes from 'jshashes'; // npm install --save jshashes
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+
+function sha256base64urlencode(str) {
+  // https://tools.ietf.org/html/rfc7636#appendix-A
+  // https://tools.ietf.org/html/rfc4648#section-5
+  return new Hashes.SHA256().b64(str)
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+/g, '');
+}
+
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -41,8 +42,6 @@ export default class App extends Component<Props> {
     );
   }
 }
-
-console.log(Config);
 
 const BACKEND = 'http://localhost:3000'
 
@@ -76,14 +75,22 @@ class LoginView extends React.Component {
     const {client_id, authorization_endpoint, redirect_uri, response_type, scope} = loginProvider;
 
     // PKCE - https://tools.ietf.org/html/rfc7636
+    //  - Protect against other apps who register our application url scheme
     const code_verifier = randomString({length: 40});
-    const code_challenge = base64url(sha256(code_verifier));
+    const code_challenge = sha256base64urlencode(code_verifier);
     const code_challenge_method = "S256";
 
-    const params = {client_id, code_challenge, code_challenge_method, redirect_uri, response_type, scope};
+    // Protect against rogue web pages that try redirect the user to authorize (XSRF)
+    const state = randomString();
+
+    const params = {client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method};
     const authorizationUrl = authorization_endpoint + "?" + qs.stringify(params);
     
-    AsyncStorage.setItem("code_verifier", code_verifier).then(() => {
+    Promise.all([
+      AsyncStorage.setItem("code_verifier", code_verifier),
+      AsyncStorage.setItem("state", state)  
+    ]).then(() => {
+      console.log(authorizationUrl);
         Linking.openURL(authorizationUrl);
     }).catch(console.warn);
   }
