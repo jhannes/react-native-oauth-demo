@@ -6,6 +6,7 @@ const qs = require('qs'); // npm install --save qs
 
 app.use(bodyParser.urlencoded());
 
+const Config = require('./env');
 
 app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
     res.redirect('myoauth2app://myapp.com' + req.url);
@@ -16,9 +17,8 @@ const loginProviders = {
     // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
     // For Administration, see https://console.developers.google.com/apis/credentials
     google: {
-        client_secret: 's7qwbqSFB457ylHYrVhhDGj3',
-        token_endpoint: 'https://accounts.google.com/o/oauth2/token',
-        grant_type: 'authorization_code'
+        client_secret: Config.GOOGLE_CLIENT_SECRET,
+        token_endpoint: 'https://accounts.google.com/o/oauth2/token'
     }
 };
 
@@ -27,13 +27,13 @@ function base64decode(encoded) {
 }
 
 app.post('/oauth2/:loginProvider/token', (req, res) => {
-    const {client_id, code, code_verifier, redirect_uri} = req.body;
+    const {client_id, code, code_verifier, redirect_uri, grant_type} = req.body;
     const {loginProvider} = req.params;
 
     const configuration = loginProviders[loginProvider];
-    const {token_endpoint, client_secret, grant_type} = configuration;
+    const {token_endpoint, client_secret} = configuration;
 
-    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier});
+    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier, grant_type});
     console.log(payload);
 
     fetch(token_endpoint, {

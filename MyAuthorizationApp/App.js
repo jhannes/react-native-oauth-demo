@@ -10,6 +10,9 @@ import randomString from 'random-string'; // npm install --save random-string
 import Hashes from 'jshashes'; // npm install --save jshashes
 import URL from 'url-parse'; // npm install --save url-parse
 
+import Config from './env';
+
+
 
 function sha256base64urlencode(str) {
   // https://tools.ietf.org/html/rfc7636#appendix-A
@@ -47,7 +50,7 @@ export default class App extends Component<Props> {
     const providerName = url.pathname.split("/")[2];
     const loginProvider = loginProviders[providerName];
 
-    const {token_endpoint, client_id, redirect_uri} = loginProvider;
+    const {token_endpoint, grant_type, client_id, redirect_uri} = loginProvider;
 
     Promise.all([
       AsyncStorage.getItem("state"),
@@ -61,7 +64,7 @@ export default class App extends Component<Props> {
         return;
       }
 
-      const payload = {code, code_verifier, client_id, redirect_uri};
+      const payload = {code, code_verifier, client_id, redirect_uri, grant_type};
       console.log(qs.stringify(payload));
       return fetch(token_endpoint, {
         method: 'POST',
@@ -95,19 +98,20 @@ export default class App extends Component<Props> {
   }
 }
 
-const BACKEND = 'http://localhost:3000'
+const BACKEND = Config.BACKEND;
 
 const loginProviders = {
   // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
   // For Administration, see https://console.developers.google.com/apis/credentials
   google: {
     title: "Log in with Google",
-    client_id: '537637163196-qq8po4809n8t932l0g0ivlo1hqprrcec.apps.googleusercontent.com',
     redirect_uri: BACKEND + '/oauth2/google/oauth2callback',
-    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    client_id: Config.GOOGLE_CLIENT_ID,
     response_type: 'code',
     scope: 'profile email',
-    token_endpoint: BACKEND + "/oauth2/google/token"
+    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    token_endpoint: BACKEND + "/oauth2/google/token",
+    grant_type: "authorization_code"
   },
   azure: {
     title: "Log in with your organization"

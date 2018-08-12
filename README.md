@@ -4,7 +4,7 @@ In this tutorial, I will walk you through setting up a React Native application 
 
 If your application can know which user it talks with for sure, you can do anything. If you cannot trust your user, you can do nothing.
 
-This is why Oauth2 is important. Oauth2 provides a common way for Identity Providers to link their users to third party applications. "Connect with Facebook", or Google, or Twitter, or GitHub has enabled many new applications in the consumer market.
+This is why Oauth2 is important. Oauth2 provides a common way for Identity Providers to link their users to third party applications. "Connect with Facebook", or Google, or Twitter, or GitHub has enabled many new applications in the consumer market. If you're new to OAuth2, I recommend you start with the excellent [OAuth 2.0 Simpified](https://aaronparecki.com/oauth-2-simplified/) guide.
 
 But in the business and public sector, these Identity Providers will not do. Luckily, you can use other providers here.
 
@@ -214,7 +214,7 @@ npm install --save express
 
 A simple `server.js`-file is all that's needed:
 
-```
+```javascript
 const express = require('express')
 const app = express()
 
@@ -282,7 +282,8 @@ import URL from 'url-parse'; // npm install --save url-parse
 const loginProviders = {
   google: {
     // ...
-    token_endpoint: BACKEND + "/oauth2/google/token"
+    token_endpoint: BACKEND + "/oauth2/google/token",
+    grant_type: "access_code"
   },
 };
 
@@ -312,7 +313,7 @@ class App extends React.Component {
     const providerName = url.pathname.split("/")[2];
     const loginProvider = loginProviders[providerName];
 
-    const {token_endpoint, client_id, redirect_uri} = loginProvider;
+    const {token_endpoint, client_id, redirect_uri, grant_type} = loginProvider;
 
     Promise.all([
       AsyncStorage.getItem("state"),
@@ -326,7 +327,7 @@ class App extends React.Component {
         return;
       }
 
-      const payload = {code, code_verifier, client_id, redirect_uri};
+      const payload = {code, code_verifier, client_id, redirect_uri, grant_type};
       console.log(qs.stringify(payload));
       return fetch(token_endpoint, {
         method: 'POST',
@@ -366,11 +367,11 @@ function base64decode(encoded) {
 }
 
 app.post('/oauth2/:loginProvider/token', (req, res) => {
-    const {client_id, code, code_verifier, redirect_uri} = req.body;
+    const {client_id, code, code_verifier, redirect_uri, grant_type} = req.body;
     const {loginProvider} = req.params;
 
     const configuration = loginProviders[loginProvider];
-    const {token_endpoint, client_secret, grant_type} = configuration;
+    const {token_endpoint, client_secret} = configuration;
 
     const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier});
     console.log(payload);
