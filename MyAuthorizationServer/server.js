@@ -19,6 +19,12 @@ const loginProviders = {
     google: {
         client_secret: Config.GOOGLE_CLIENT_SECRET,
         token_endpoint: 'https://accounts.google.com/o/oauth2/token'
+    },
+    // For configuration values, see https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
+    // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
+    azure: {
+        client_secret: Config.AZURE_CLIENT_SECRET,
+        token_endpoint: 'https://login.microsoftonline.com/common/oauth2/token'
     }
 };
 
@@ -47,9 +53,10 @@ app.post('/oauth2/:loginProvider/token', (req, res) => {
         return response.json();
     }).then(tokenResponse => {
         console.log(tokenResponse);
-        const idToken = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        console.log(id_token);
         res.send({
-            username: idToken.email
+            username: id_token.name || id_token.email
         });
     }).catch(err => console.error);
 });

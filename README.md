@@ -424,7 +424,70 @@ class App extends React.Component {
 
 ### Loose ends
 
+Currently, the App only get the user name from the backend and does not maintain it's authentication with the backend for later API calls. For a real scenario, you would either return the `id_token` or `access_token` to the client for use in later API calls, or the backend would generate it's own internal session with an access token that is sent to the client.
+
 ## Implementing more login providers
+
+### Azure Active Directory
+
+It's very important to note: You don't need to have admin access to an existing Active Directory in order to create applications where users from *any* Active Directory can authorize themselves. This can literally be done with a Azure trial account. This is done through what's called Azure Active Directory Multi Tenant authorization.
+
+In order to register a Azure Active Directory application:
+
+1. Create a [new Azure Active Directory](https://portal.azure.com/#create/Microsoft.AzureActiveDirectory) if you don't already have one. Here, you can control applications (and users for the directory, but you don't need that)
+2. When you have created a new Azure Active Directory, you can switch between your directory with the top right-hand menu in the Azure portal
+3. Create a new [Application Registration](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) of type "Web app/API"
+4. Under Settings > Properties, make sure you switch Multi-tenanted to "yes"
+5. Under Settings > Reply URLs for your application, add your redirect_uri: `http://localhost:3000/oauth2/azure/oauth2callback`
+6. Under Settings > Keys create a new key and save it in the configuration for your server (this should not be checked into git!)
+
+Now, you can add the following configuration in the client:
+
+```javascript
+const loginProviders = {
+  google: {
+    // ...
+  },
+  // For configuration values, see https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
+  // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
+  azure: {
+    title: "Log in with your organization",
+    redirect_uri: BACKEND + '/oauth2/azure/oauth2callback',
+    client_id: Config.AZURE_CLIENT_ID, // The Application ID of your Application Registration
+    response_type: 'code',
+    scope: 'openid profile User.Read',
+    authorization_endpoint: "https://login.microsoftonline.com/common/oauth2/authorize",
+    token_endpoint: BACKEND + "/oauth2/azure/token",
+    grant_type: "authorization_code"
+  },
+```
+
+For the server, add the configuration:
+
+```javascript
+const loginProviders = {
+    google: {
+      // ...
+    },
+    // For configuration values, see https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
+    // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
+    azure: {
+        client_secret: Config.AZURE_CLIENT_SECRET,
+        token_endpoint: 'https://login.microsoftonline.com/common/oauth2/token'
+    }
+};
+```
+
+The claims of the `id_token` returned will be somewhat different from what we got back from Google, so reading the id_token must be updated as well:
+
+```javascript
+        const idToken = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        res.send({
+            username: idToken.name || idToken.email
+        });
+```
+
+The most important properties are `name`, `upn` (which contains the email address) and `tid` or Tenant ID, which is the unique identifier of the organization that authorized this user. If you create an application that can be used by multiple organizations, this is where you find the organization identifier.
 
 
 ## Conclusions

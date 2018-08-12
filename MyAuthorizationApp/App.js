@@ -60,7 +60,7 @@ export default class App extends Component<Props> {
       AsyncStorage.removeItem('code_verifier');
       if (!code_verifier) return;
       if (state != request_state) {
-        console.warn("CSRF attack!");
+        console.warn("XSRF attack!");
         return;
       }
 
@@ -113,8 +113,17 @@ const loginProviders = {
     token_endpoint: BACKEND + "/oauth2/google/token",
     grant_type: "authorization_code"
   },
+  // For configuration values, see https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
+  // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
   azure: {
-    title: "Log in with your organization"
+    title: "Log in with your organization",
+    redirect_uri: BACKEND + '/oauth2/azure/oauth2callback',
+    client_id: Config.AZURE_CLIENT_ID, // The Application ID of your Application Registration
+    response_type: 'code',
+    scope: 'openid profile User.Read',
+    authorization_endpoint: "https://login.microsoftonline.com/common/oauth2/authorize",
+    token_endpoint: BACKEND + "/oauth2/azure/token",
+    grant_type: "authorization_code"
   },
   idPorten: {   
     title: "Log in with ID-porten"
