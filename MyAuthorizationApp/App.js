@@ -7,8 +7,8 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
 import qs from 'qs'; // npm install --save qs
 import randomString from 'random-string'; // npm install --save random-string
-import URL from 'url-parse'; // npm install --save url-parse
 import Hashes from 'jshashes'; // npm install --save jshashes
+import URL from 'url-parse'; // npm install --save url-parse
 
 
 function sha256base64urlencode(str) {
@@ -23,6 +23,60 @@ type Props = {};
 export default class App extends Component<Props> {
   state = {};
 
+  handleOpenUrl = (url) => {
+    this.handleRedirectUri(url);
+  }
+  
+  componentDidMount() {
+    Linking.addEventListener("url", this.handleOpenUrl);
+    Linking.getInitialURL().then(url => {
+      if (url) this.handleRedirectUri(url);
+    });
+  }
+
+  componentWillUnmount() {
+    Linking.removeEventListener("url", this.handleOpenUrl);
+  }
+
+  handleRedirectUri(urlString) {
+    const url = new URL(urlString, true);
+    const {code, state} = url.query;
+
+    if (!code) return;
+
+    const providerName = url.pathname.split("/")[2];
+    const loginProvider = loginProviders[providerName];
+
+    const {token_endpoint, client_id, redirect_uri} = loginProvider;
+
+    Promise.all([
+      AsyncStorage.getItem("state"),
+      AsyncStorage.getItem("code_verifier")
+    ]).then(([request_state, code_verifier]) => {
+      AsyncStorage.removeItem('state');
+      AsyncStorage.removeItem('code_verifier');
+      if (!code_verifier) return;
+      if (state != request_state) {
+        console.warn("CSRF attack!");
+        return;
+      }
+
+      const payload = {code, code_verifier, client_id, redirect_uri};
+      console.log(qs.stringify(payload));
+      return fetch(token_endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        body: qs.stringify(payload)
+      }).then(resp => resp.json())
+      .then(user => this.setState({user}))
+      .catch(err => {
+        console.warn("something went wrong", err);
+      });
+    });
+  }
+
   render() {
     const {user} = this.state;
     if (!user) {
@@ -35,9 +89,7 @@ export default class App extends Component<Props> {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+        <Text style={styles.welcome}>Welcome {user.username}!</Text>
       </View>
     );
   }
@@ -53,9 +105,9 @@ const loginProviders = {
     client_id: '537637163196-qq8po4809n8t932l0g0ivlo1hqprrcec.apps.googleusercontent.com',
     redirect_uri: BACKEND + '/oauth2/google/oauth2callback',
     authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-    token_endpoint: BACKEND + "/oauth2/google/token",
     response_type: 'code',
-    scope: 'profile email'
+    scope: 'profile email',
+    token_endpoint: BACKEND + "/oauth2/google/token"
   },
   azure: {
     title: "Log in with your organization"
@@ -67,11 +119,11 @@ const loginProviders = {
 
 
 class LoginView extends React.Component {
-	state = {}
+  state = {}
 
-	handleLogin = (key) => {
+  handleLogin = (key) => {
     const loginProvider = loginProviders[key];
-		this.setState({loginProvider});
+    this.setState({loginProvider});
     const {client_id, authorization_endpoint, redirect_uri, response_type, scope} = loginProvider;
 
     // PKCE - https://tools.ietf.org/html/rfc7636
@@ -91,26 +143,26 @@ class LoginView extends React.Component {
       AsyncStorage.setItem("state", state)  
     ]).then(() => {
       console.log(authorizationUrl);
-        Linking.openURL(authorizationUrl);
+      Linking.openURL(authorizationUrl);
     }).catch(console.warn);
   }
 
-	render() {
+  render() {
     const {loginProvider} = this.state;
     const handleLogin = this.handleLogin;
 
     if (loginProvider) {
-			return <Text>Logging you in with {loginProvider.title}</Text>;
-		}
+      return <Text>Logging you in with {loginProvider.title}</Text>;
+    }
 
-		return (
-			<View>
-				<Text>Choose how you want to log in</Text>
+    return (
+      <View>
+        <Text>Choose how you want to log in</Text>
         {Object.entries(loginProviders).map(([key,provider]) =>
           <Button title={provider.title} onPress={() => handleLogin(key)} key={key} />)}
-			</View>
-		);
-	}
+      </View>
+    );
+  }
 }
 
 

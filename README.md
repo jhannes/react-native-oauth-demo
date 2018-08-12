@@ -40,7 +40,7 @@ cd MyAuthorizationApp
 npm install
 react-native run-android
 # Some dependencies for later
-npm install --save qs base64url fast-sha256 random-string
+npm install --save qs random-string url-parse jshashes
 ```
 
 I recommend using Visual Studio Code for React Native development. Open the MyAuthorizationApp directory in Code and install the React Native extension. Select Debug > Add Configuration and add React Native. Now you can simply press F5 to start the debugger.
@@ -141,21 +141,26 @@ If you run this code, you will be presented with the login options, but nothing 
 When the user selects a login provider, we need to create an authorization URL and open a browser to that URL:
 
 ```javascript
-import {Platform, StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
-import Config from 'react-native-config'; // We added this with npm install --save react-native-config
+import {StyleSheet, Text, View, Button, Linking, AsyncStorage} from 'react-native';
 import qs from 'qs'; // npm install --save qs
 import randomString from 'random-string'; // npm install --save random-string
+import Hashes from 'jshashes'; // npm install --save jshashes
 // ...
+
+
+const BACKEND = 'http://localhost:3000'
 
 const loginProviders = {
   // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
   // For Administration, see https://console.developers.google.com/apis/credentials
   google: {
     title: "Log in with Google",
-    client_id: Config.GOOGLE_CLIENT_ID,
-    redirect_uri: Config.GOOGLE_REDIRECT_URI,
+    client_id: '...', // Get yours from https://console.developers.google.com/apis/credentials
+    redirect_uri: BACKEND + '/oauth2/google/oauth2callback',
     authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-    token_endpoint: Config.BACKEND + "/oauth2/google/token"
+    token_endpoint: BACKEND + "/oauth2/google/token",
+    response_type: 'code',
+    scope: 'profile email'
   },
   // We'll get around to the others later
 
@@ -167,15 +172,23 @@ const loginProviders = {
     const {client_id, authorization_endpoint, redirect_uri, response_type, scope} = loginProvider;
 
     // PKCE - https://tools.ietf.org/html/rfc7636
+    //  - Protect against other apps who register our application url scheme
     const code_verifier = randomString({length: 40});
-    const code_challenge = base64url(sha256(code_verifier));
+    const code_challenge = sha256base64urlencode(code_verifier);
     const code_challenge_method = "S256";
 
-    const params = {client_id, code_challenge, code_challenge_method, redirect_uri, response_type, scope};
+    // Protect against rogue web pages that try redirect the user to authorize (XSRF)
+    const state = randomString();
+
+    const params = {client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method};
     const authorizationUrl = authorization_endpoint + "?" + qs.stringify(params);
 
-    AsyncStorage.setItem("code_verifier", code_verifier).then(() => {
-        Linking.openURL(authorizationUrl);
+    Promise.all([
+      AsyncStorage.setItem("code_verifier", code_verifier),
+      AsyncStorage.setItem("state", state)  
+    ]).then(() => {
+      console.log(authorizationUrl);
+      Linking.openURL(authorizationUrl);
     }).catch(console.warn);
   }
 ```
@@ -184,7 +197,9 @@ When you run this application, the app will open an external web browser on devi
 
 ### Handle the redirect
 
-When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the redirect_uri. For development purposes, we set this to http://localhost:3000. When you debug in the iPhone emulator, localhost URLs will automatically redirect to the host computer. In order to achieve the same in Android, just use the following ADB command:
+When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the `redirect_uri`. We want this to use an application URL scheme like `myoauth2app://` to redirect back to the app. However, Open ID providers don't let you use custom URL schemes for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:3000) which redirects back to the app URL.
+
+When you debug in the iPhone emulator, localhost URLs will automatically redirect to the host computer. In order to achieve the same in Android, just use the following ADB command:
 
 `adb reverse tcp:3000 tcp:3000`
 
@@ -204,7 +219,7 @@ const express = require('express')
 const app = express()
 
 app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
-    res.redirect('myoauth2app://' + req.url);
+    res.redirect('myoauth2app://myapp.com' + req.url);
 });
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
@@ -213,7 +228,7 @@ app.listen(3000, () => console.log('Example app listening on port 3000!'))
 
 ### Handle the redirect (Android)
 
-In order to handle the redirect back to the application, your application must register the `myoauth2app` URI scheme with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file:
+In order to handle the redirect back to the application, your application must register the `myoauth2app` URI scheme with the mobile operating system. In Android, this is done by updating the `android/app/src/main/AndroidManifest.xml` file and adding a `android.intent.action.VIEW` intent-filter. Here is the final `<application>` definition:
 
 ```xml
 <application
@@ -243,9 +258,11 @@ In order to handle the redirect back to the application, your application must r
 
 *You have to restart the debugger and run `npm run android` (or F5 in VS Code) to pick up changes in the `AndroidManifest.xml`.*
 
+(Note: We could have used https://-urls for Android, but iOS is more restrictive about this, so the easiest is to use a custom scheme for both)
+
 ### Handle the redirect (iOS)
 
-iOS normally does not like apps to handle http(s) URLs. Instead, you should set up XCode to handle `myoauth2app://`-urls. See https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app. In React Native, you need to do make the following changes:
+You should set up XCode to handle `myoauth2app://`-urls. See https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app. In React Native, you need to do make the following changes:
 
 1. Update the app info.plist to contain `myoauth2app` as a URL
 2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See https://facebook.github.io/react-native/docs/linking
@@ -256,51 +273,124 @@ However, Open ID providers don't let you use custom URL schemes like `myoauth2ap
 
 ### Requesting access token
 
-When the application is reopened, we can get the appropriate information by calling Linking.getCurrentURL()
+When the application is reopened, we can get the appropriate information by calling `Linking.getCurrentURL` (for Android) or `Linking.addEventListener` (for iOS).
 
 ```javascript
+import URL from 'url-parse'; // npm install --save url-parse
+// ...
+
+const loginProviders = {
+  google: {
+    // ...
+    token_endpoint: BACKEND + "/oauth2/google/token"
+  },
+};
+
 class App extends React.Component {
 
-	componentDidMount() {
-		if (!this.state.user) {
-			Linking.getCurrentURL(url => {
-				if (!url) return;
+  handleOpenUrl = (url) => {
+    this.handleRedirectUri(url);
+  }
+  
+  componentDidMount() {
+    Linking.addEventListener("url", this.handleOpenUrl);
+    Linking.getInitialURL().then(url => {
+      if (url) this.handleRedirectUri(url);
+    });
+  }
 
-				const {code} = parseUrl(url).query;
-				AsyncStorage.getItem("code_verifier").then(code_verifier => {
-					AsyncStorage.removeItem("code_verifier");
-					const {token_uri, client_id, redirect_uri} = loginProvider;
-					const payload = {
-						client_id, code, code_verifier, redirect_uri
-					};
+  componentWillUnmount() {
+    Linking.removeEventListener("url", this.handleOpenUrl);
+  }
 
-					fetch(token_uri, {
-						method: "POST",
-						body: qs(payload)
-					}).then(res => res.json())
-					.then(user => this.setState({user}));
-				});
-			});
-		}
-	}
+  handleRedirectUri(urlString) {
+    const url = new URL(urlString, true);
+    const {code, state} = url.query;
+
+    if (!code) return;
+
+    const providerName = url.pathname.split("/")[2];
+    const loginProvider = loginProviders[providerName];
+
+    const {token_endpoint, client_id, redirect_uri} = loginProvider;
+
+    Promise.all([
+      AsyncStorage.getItem("state"),
+      AsyncStorage.getItem("code_verifier")
+    ]).then(([request_state, code_verifier]) => {
+      AsyncStorage.removeItem('state');
+      AsyncStorage.removeItem('code_verifier');
+      if (!code_verifier) return;
+      if (state != request_state) {
+        console.warn("CSRF attack!");
+        return;
+      }
+
+      const payload = {code, code_verifier, client_id, redirect_uri};
+      console.log(qs.stringify(payload));
+      return fetch(token_endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        body: qs.stringify(payload)
+      }).then(resp => resp.json())
+      .then(user => this.setState({user}))
+      .catch(err => {
+        console.warn("something went wrong", err);
+      });
+    });
+  }
 }
 ```
 
-Importantly, the `token_uri` *should not* be the real token URI for the login provider. Instead, it should be your own backend. In my case, I implemented this with Express:
+Importantly, the `token_end` *should not* be the real token URI for the login provider. Instead, it should be your own backend. This way we can protect the `client_secret` of our application. I expand the `server.js` file in the express project to handle token posts:
 
 ```javascript
-app.post('/oauth2/:provider/token', (res, req) => {
-	const {client_id, code, code_verifier, redirect_uri} = res.body;
-	const loginProvider = providers[res.provider];
-	const {token_uri, client_secret} = loginProvider;
-	fetch(token_uri, {
-		method: 'POST',
-		body: qs({client_id, client_secret, code, code_verifier, redirect_uri})
-	}).then(response => response.json())
-	.then(response => JSON.parse(base64decode(response.id_token)))
-	.then(id_token => res.send({
-		username: id_token.user_name
-	}));
+const bodyParser = require('body-parser'); // npm install --save body-parse
+const fetch = require('node-fetch'); // npm install --save node-fetch
+
+const loginProviders = {
+    // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
+    // For Administration, see https://console.developers.google.com/apis/credentials
+    google: {
+        client_secret: '...', // Get yours at https://accounts.google.com/.well-known/openid-configuration
+        token_endpoint: 'https://accounts.google.com/o/oauth2/token',
+    }
+};
+
+// ..
+
+function base64decode(encoded) {
+    return new Buffer(encoded, 'base64').toString('ascii');
+}
+
+app.post('/oauth2/:loginProvider/token', (req, res) => {
+    const {client_id, code, code_verifier, redirect_uri} = req.body;
+    const {loginProvider} = req.params;
+
+    const configuration = loginProviders[loginProvider];
+    const {token_endpoint, client_secret, grant_type} = configuration;
+
+    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier});
+    console.log(payload);
+
+    fetch(token_endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
+        body: payload
+    }).then(response => {
+        console.log(response.status);
+        return response.json();
+    }).then(tokenResponse => {
+        console.log(tokenResponse);
+        const idToken = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        res.send({
+            username: idToken.email
+        });
+    }).catch(err => console.error);
 });
 ```
 
@@ -310,96 +400,40 @@ Now all that's left is to display the user information
 
 ```javascript
 class App extends React.Component {
-	state = {};
+  state = {};
 
-	render() {
-		const {user} = this.state;
+  render() {
+    const {user} = this.state;
+    if (!user) {
+      return (
+        <View style={styles.container}>
+          <LoginView />
+        </View>
+      );        
+    }
 
-		if (!user) {
-			return <LoginView />;
-		}
-		return (
-			<View>
-				<Text>Welcome to the app {user.username}!</Text>
-			</View>
-		);
-	}
+    return (
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Welcome {user.username}!</Text>
+      </View>
+    );
+  }
 }
 ```
+
+### Loose ends
+
+## Implementing more login providers
+
 
 ## Conclusions
 
 1. Oauth2 is great for many authentication scenarios, whether commercial, internal in an organization or in public sector
 2. Standardization makes it easy to integrate many login providers
 3. Mobile apps should use an external browser to authenticate the user and return to the app via a registered URL [RFC link!]
-4. Mobile apps should use code_challenge and code_verifier (AKA PKCE) to defeat malicious apps on the same OS [RFC link]
-5. In Android, use .... intent to register a browser URL; in iOS, use xxxx.
+4. Mobile apps should use code_challenge and code_verifier [PKCE](https://tools.ietf.org/html/rfc7636) to defeat malicious apps on the same OS
+5. In Android, use VIEW intent to register a browser URL; in iOS, add ... to `info.plist`.
 6. Mobile apps need a backend to protect the client_secret for the token request
 
 See the complete code on my github account.
 
-
-
-Todo: Here is some code that I should use somewhere better.
-
-```javascript
-componentDidMount() {
-	const {user, loginProvider} = this.state;
-	if (!user && loginProvider) {
-		return Linking.getInitialURL().then(url => {
-			const {code} = parseUrl(url).query;
-			if (code) {
-				AsyncStorage.getItem("code_verifier").then(code_verifier => {
-					const {token_uri, client_id, redirect_uri} = loginProvider;
-					fetch(token_uri, {client_id, redirect_uri, code, code_verifier})
-						.then(res => res.json())
-						.then(user => this.setState({user}));
-				});
-			} else {
-				const code_verifier = randomString();
-				AsyncStorage.setItem("code_verifier", code_verifier).then(() => {
-					const {auth_uri, client_id, redirect_uri} = loginProvider;
-					const code_challenge = sha256(code_verifier);
-					Linking.openURL(auth_uri + "?" + qs({client_id, redirect_uri, code_challenge, code_challenge_method: "s256"}))
-				});
-			}
-		});
-	}
-}
-
-render() {
-	const {user, loginProvider} = this.state;
-	if (user) {
-		return (
-			<View>
-				<Text>Welcome to the app {user.username}!</Text>
-			</View>
-		);		
-	}
-	if (!loginProvider) {
-		return (
-			<View>
-				<Text>Choose how you want to log in</Text>
-				<Button
-					title="Google"
-					onClick={() => this.handleLogin(googleLogin)} />
-				<Button
-					title="Active Directory"
-					onClick={() => this.handleLogin(azureAdLogin)} />
-				<Button
-					title="ID-porten"
-					onClick={() => this.handleLogin(idPortenLogin)} />
-			</View>);
-	}
-	return (
-		<View>
-			<Text>Logging you in with {loginProvider.title}</Text>
-		</View>);
-	);
-}
-
-
-}
-
-
-```
