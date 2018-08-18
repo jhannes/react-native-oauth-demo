@@ -258,18 +258,43 @@ In order to handle the redirect back to the application, your application must r
 
 *You have to restart the debugger and run `npm run android` (or F5 in VS Code) to pick up changes in the `AndroidManifest.xml`.*
 
-(Note: We could have used https://-urls for Android, but iOS is more restrictive about this, so the easiest is to use a custom scheme for both)
+(Note: We could have used `https://`-urls for Android, but iOS is more restrictive about this, so the easiest is to use the same custom scheme for both)
 
 ### Handle the redirect (iOS)
 
-You should set up XCode to handle `myoauth2app://`-urls. See https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app. In React Native, you need to do make the following changes:
+You should set up XCode to handle `myoauth2app://`-urls. See ][https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app]. In React Native, you need to do make the following changes:
 
 1. Update the app info.plist to contain `myoauth2app` as a URL
-2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See https://facebook.github.io/react-native/docs/linking
+2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See [https://facebook.github.io/react-native/docs/linking]
 
-However, Open ID providers don't let you use custom URL schemes like `myoauth2app://` for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:3000 works for the iOS emulator) which redirects back to the app URL.
+This is what is added to `info.plist`:
 
-...
+```xml
+<dict>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>myoauth2app</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>myoauth2app</string>
+      </array>
+    </dict>
+  </array>
+```
+This is what's added to `AppDelegate.m`:
+
+```objectivec
+#import <React/RCTLinkingManager.h>
+
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+```
 
 ### Requesting access token
 
