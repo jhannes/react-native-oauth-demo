@@ -150,7 +150,7 @@ import Hashes from 'jshashes'; // npm install --save jshashes
 
 
 const loginProviders = {
-  // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
+ // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
   // For Administration, see https://console.developers.google.com/apis/credentials
   google: {
     title: "Google",
@@ -160,7 +160,7 @@ const loginProviders = {
     scope: 'profile email',
     code_challenge_method: "S256",
   },
-  // We'll get around to the others later
+   // We'll get around to the others later
 
 // ...
 
@@ -235,27 +235,27 @@ In order to handle the redirect back to the application, your application must r
 
 ```xml
 <application
-	android:name=".MainApplication"
-	android:label="@string/app_name"
-	android:icon="@mipmap/ic_launcher"
-	android:allowBackup="false"
-	android:launchMode="singleTask"
-	android:theme="@style/AppTheme">
-	<activity
-	android:name=".MainActivity"
-	android:label="@string/app_name"
-	android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-	android:windowSoftInputMode="adjustResize">
-	<intent-filter>
-		<action android:name="android.intent.action.MAIN" />
-		<category android:name="android.intent.category.LAUNCHER" />
-	</intent-filter>
-	<intent-filter>
-		<action android:name="android.intent.action.VIEW"/>
-		<category android:name="android.intent.category.DEFAULT"/>
-		<category android:name="android.intent.category.BROWSABLE"/>
-		<data android:scheme="myoauth2app" />
-	</intent-filter>
+  android:name=".MainApplication"
+  android:label="@string/app_name"
+  android:icon="@mipmap/ic_launcher"
+  android:allowBackup="false"
+  android:launchMode="singleTask"
+  android:theme="@style/AppTheme">
+  <activity
+  android:name=".MainActivity"
+  android:label="@string/app_name"
+  android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+  android:windowSoftInputMode="adjustResize">
+  <intent-filter>
+    <action android:name="android.intent.action.MAIN" />
+    <category android:name="android.intent.category.LAUNCHER" />
+  </intent-filter>
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <category android:name="android.intent.category.BROWSABLE"/>
+    <data android:scheme="myoauth2app" />
+  </intent-filter>
 </activity>
 ```
 
@@ -539,6 +539,68 @@ The claims of the `id_token` returned will be somewhat different from what we go
 
 The most important properties are `name`, `upn` (which contains the email address) and `tid` or Tenant ID, which is the unique identifier of the organization that authorized this user. If you create an application that can be used by multiple organizations, this is where you find the organization identifier.
 
+In my case, this is what I see:
+
+![App screenshot showing Azure account information](doc/screenshots/azure-user-screen.png)
+
+### ID-porten - for Norwegian public sector projects
+
+The Norwegian Agency for Public Management and eGovernment (Difi) has their own login provider that can be used to authorize any resident of Norway. In order to use the public sector Open ID provider, you need to fullfil some requirements and get an agreement with Difi. This is [well-documented in Norwegian](https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html) on Difi's documentation.
+
+In our case, we had an existing agreement with Difi and we sent an email requesting an Open-ID application configuration where we stated our redirect_uri's. We got the client ID and secret back from Difi and were able to set up the application:
+
+```javascript
+const loginProviders = {
+  google: { /* ... */ },
+  azure: { /* ... */ },
+  // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
+  /// For setup instructions, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_func_clientreg.html
+  idporten: {
+    title: "ID-porten",
+    redirect_uri: Config.BACKEND + '/idporten/oauth2callback',
+    client_id: Config.IDPORTEN_CLIENT_ID, // The Application ID of your Application Registration
+    response_type: 'code',
+    scope: 'openid profile',
+    code_challenge_method: undefined, // Currently, ID-porten seems to return invalid_grant when I use PKCE
+    authorization_endpoint: Config.IDPORTEN_AUTHORITY + "/idporten-oidc-provider/authorize", // E.g. https://oidc-ver1.difi.no for stable test
+    token_endpoint: Config.BACKEND + '/idporten/token',
+    grant_type: "authorization_code",
+  }
+};
+```
+
+And in `server.js`:
+
+```javascript
+const loginProviders = {
+    google: { /* ... */ },
+    azure: { /* ... */ },
+    // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
+    /// For setup instructions, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_func_clientreg.html
+    idporten: {
+        client_secret: Config.IDPORTEN_CLIENT_SECRET,
+        // IDPORTEN_AUTHORITY must match between app and server
+        token_endpoint: Config.IDPORTEN_AUTHORITY + '/idporten-oidc-provider/token'
+    }
+};
+
+// ...
+// in app.post('/oauth2proxy/:loginProvider/token', (req, res) => {
+        const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        res.send({
+            username: id_token.name || id_token.email || id_token.pid
+        });
+```
+
+The app will redirect the user to a screen that's familiar to everyone who lives in Norway:
+
+![Login screen for ID-porten](doc/screenshots/idporten-login-screen.png)
+
+The `id_token` from idporten basically only returns `sub` as a local unique identifier as the subject and `pid` as the Norwegian National ID number of the user (if you are authorized to get this). You can also query for the email address and phone number of the subject. (The screenshot is from a non-existant person in ID-porten test environment).
+
+![App shows the national personal identifier (fødselsnummer) for the user](doc/screenshots/idporten-user-screen.png)
+
+The disadvantage is that as a national service, ID porten has to prioritize privacy above convenience. The advantage is that it has one of the highest levels of real person user identification in the world. So you're app can be quite confident about who you're talking to.
 
 ## Conclusions
 

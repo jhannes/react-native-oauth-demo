@@ -25,6 +25,13 @@ const loginProviders = {
     azure: {
         client_secret: Config.AZURE_CLIENT_SECRET,
         token_endpoint: 'https://login.microsoftonline.com/common/oauth2/token'
+    },
+    // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
+    /// For setup instructions, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_func_clientreg.html
+    idporten: {
+        client_secret: Config.IDPORTEN_CLIENT_SECRET,
+        // IDPORTEN_AUTHORITY must match between app and server
+        token_endpoint: Config.IDPORTEN_AUTHORITY + '/idporten-oidc-provider/token'
     }
 };
 
@@ -56,7 +63,7 @@ app.post('/oauth2proxy/:loginProvider/token', (req, res) => {
         const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
         console.log(id_token);
         res.send({
-            username: id_token.name || id_token.email
+            username: id_token.name || id_token.email || id_token.pid
         });
     }).catch(err => console.error);
 });

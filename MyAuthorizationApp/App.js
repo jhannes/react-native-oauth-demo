@@ -128,8 +128,18 @@ const loginProviders = {
     token_endpoint: Config.BACKEND + '/azure/token',
     grant_type: "authorization_code",
   },
-  idPorten: {   
-    title: "Log in with ID-porten"
+  // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
+  /// For setup instructions, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_func_clientreg.html
+  idporten: {   
+    title: "ID-porten",
+    redirect_uri: Config.BACKEND + '/idporten/oauth2callback',
+    client_id: Config.IDPORTEN_CLIENT_ID, // The Application ID of your Application Registration
+    response_type: 'code',
+    scope: 'openid profile',
+    code_challenge_method: undefined, // Currently, ID-porten seems to return invalid_grant when I use PKCE
+    authorization_endpoint: Config.IDPORTEN_AUTHORITY + "/idporten-oidc-provider/authorize",
+    token_endpoint: Config.BACKEND + '/idporten/token',
+    grant_type: "authorization_code",
   }
 };
 
