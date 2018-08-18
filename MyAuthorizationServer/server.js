@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded());
 
 const Config = require('./env');
 
-app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
+app.get('/oauth2proxy/:loginProvider/oauth2callback', (req, res) => {
     res.redirect('myoauth2app://myapp.com' + req.url);
 });
 
@@ -32,14 +32,14 @@ function base64decode(encoded) {
     return new Buffer(encoded, 'base64').toString('ascii');
 }
 
-app.post('/oauth2/:loginProvider/token', (req, res) => {
+app.post('/oauth2proxy/:loginProvider/token', (req, res) => {
     const {client_id, code, code_verifier, redirect_uri, grant_type} = req.body;
     const {loginProvider} = req.params;
 
     const configuration = loginProviders[loginProvider];
     const {token_endpoint, client_secret} = configuration;
 
-    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier, grant_type});
+    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, code_verifier, grant_type});
     console.log(payload);
 
     fetch(token_endpoint, {
@@ -63,4 +63,4 @@ app.post('/oauth2/:loginProvider/token', (req, res) => {
 
 
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+app.listen(8084, () => console.log('Example app listening on port 8084!'))

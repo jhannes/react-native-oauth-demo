@@ -55,12 +55,11 @@ Every login provider will require some setup. For Google, this is what you need 
 4. Select "Create credential" > "Oauth client" and select Application type "Web application"
 5. Authorized redirect URIs are the most important. For now, let's just configure localhost.
    We need the redirect URIs to specify which login provider we're dealing with, so
-   http://localhost:3000/oauth2/google/oauth2callback is a good redirect URI
+   `http://localhost:8084/oauth2proxy/google/oauth2callback` is a good redirect URI
 6. When you complete the registration, you will get a client id and a client secret. At first
-   we will need to save the client id to a file named `.env`:
+   we will need to save the client id to a file named `env.js`:
    ```
    GOOGLE_CLIENT_ID=...
-   GOOGLE_REDIRECT_URI=http://localhost:3000/oauth2/google/oauth2callback
    ```
 7. We will use [React Native Config](https://github.com/luggit/react-native-config) to
    handle the configuration. Run `npm install react-native-config --save-dev` to
@@ -134,9 +133,11 @@ class LoginView extends React.Component {
 }
 ```
 
-If you run this code, you will be presented with the login options, but nothing much will happen when you select one.
+If you run this code, you will be presented with the login options, but nothing much will happen when you select one:
 
-### Handle the login
+![Main screen presents three login options](doc/screenshots/main-screen.png)
+
+### Redirect to login provider
 
 When the user selects a login provider, we need to create an authorization URL and open a browser to that URL:
 
@@ -148,19 +149,16 @@ import Hashes from 'jshashes'; // npm install --save jshashes
 // ...
 
 
-const BACKEND = 'http://localhost:3000'
-
 const loginProviders = {
   // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
   // For Administration, see https://console.developers.google.com/apis/credentials
   google: {
-    title: "Log in with Google",
-    client_id: '...', // Get yours from https://console.developers.google.com/apis/credentials
-    redirect_uri: BACKEND + '/oauth2/google/oauth2callback',
-    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-    token_endpoint: BACKEND + "/oauth2/google/token",
+    title: "Google",
+    redirect_uri: Config.BACKEND + '/google/oauth2callback',
+    client_id: Config.GOOGLE_CLIENT_ID,
     response_type: 'code',
-    scope: 'profile email'
+    scope: 'profile email',
+    code_challenge_method: "S256",
   },
   // We'll get around to the others later
 
@@ -169,39 +167,44 @@ const loginProviders = {
   handleLogin = (key) => {
     const loginProvider = loginProviders[key];
     this.setState({loginProvider});
-    const {client_id, authorization_endpoint, redirect_uri, response_type, scope} = loginProvider;
+    const {client_id, authorization_endpoint, redirect_uri, response_type, scope, code_challenge_method} = loginProvider;
 
     // PKCE - https://tools.ietf.org/html/rfc7636
     //  - Protect against other apps who register our application url scheme
-    const code_verifier = randomString({length: 40});
-    const code_challenge = sha256base64urlencode(code_verifier);
-    const code_challenge_method = "S256";
+    const code_verifier = code_challenge_method && randomString({length: 40});
+    const code_challenge = code_challenge_method && sha256base64urlencode(code_verifier);
 
     // Protect against rogue web pages that try redirect the user to authorize (XSRF)
     const state = randomString();
 
-    const params = {client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method};
+    const params = {client_id, redirect_uri, response_type, scope, state, code_challenge_method, code_challenge};
     const authorizationUrl = authorization_endpoint + "?" + qs.stringify(params);
 
     Promise.all([
-      AsyncStorage.setItem("code_verifier", code_verifier),
+      AsyncStorage.setItem("code_verifier", code_verifier || ""),
       AsyncStorage.setItem("state", state)  
     ]).then(() => {
       console.log(authorizationUrl);
       Linking.openURL(authorizationUrl);
-    }).catch(console.warn);
+    }).catch(err => {
+      console.warn(err)
+    });
   }
 ```
 
-When you run this application, the app will open an external web browser on device with the appropriate login screen. Of course, the redirect_uri needs to bring the user back to the application. Right now it just goes to a URL where nothing lives.
+When you run this application, the app will open an external web browser on device with the appropriate login screen.
+
+![Google Login Screen](doc/screenshots/google-login.png)
+
+Of course, the redirect_uri needs to bring the user back to the application. Right now it just goes to a URL where nothing lives.
 
 ### Handle the redirect
 
-When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the `redirect_uri`. We want this to use an application URL scheme like `myoauth2app://` to redirect back to the app. However, Open ID providers don't let you use custom URL schemes for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:3000) which redirects back to the app URL.
+When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the `redirect_uri`. We want this to use an application URL scheme like `myoauth2app://` to redirect back to the app. However, Open ID providers don't let you use custom URL schemes for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:8084) which redirects back to the app URL.
 
 When you debug in the iPhone emulator, localhost URLs will automatically redirect to the host computer. In order to achieve the same in Android, just use the following ADB command:
 
-`adb reverse tcp:3000 tcp:3000`
+`adb reverse tcp:8084 tcp:8084`
 
 With that out of the way, we need to run a web server that will handle the redirect and redirect the user again, this time to an application URL. Let's create the server with Express.
 
@@ -222,7 +225,7 @@ app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
     res.redirect('myoauth2app://myapp.com' + req.url);
 });
 
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+app.listen(8084, () => console.log('Example app listening on port 8084!'))
 ```
 
 
@@ -333,24 +336,27 @@ class App extends React.Component {
     const url = new URL(urlString, true);
     const {code, state} = url.query;
 
+    console.log("App url: " + url);
+
     if (!code) return;
 
     const providerName = url.pathname.split("/")[2];
     const loginProvider = loginProviders[providerName];
 
-    const {token_endpoint, client_id, redirect_uri, grant_type} = loginProvider;
+    const {token_endpoint, grant_type, client_id, redirect_uri} = loginProvider;
 
     Promise.all([
       AsyncStorage.getItem("state"),
       AsyncStorage.getItem("code_verifier")
-    ]).then(([request_state, code_verifier]) => {
+    ]).then(([request_state, request_code_verifier]) => {
       AsyncStorage.removeItem('state');
       AsyncStorage.removeItem('code_verifier');
-      if (!code_verifier) return;
       if (state != request_state) {
-        console.warn("CSRF attack!");
+        console.log("State mismatch, don't carry out the token request", state, request_state);
         return;
       }
+
+      const code_verifier = request_code_verifier || undefined;
 
       const payload = {code, code_verifier, client_id, redirect_uri, grant_type};
       console.log(qs.stringify(payload));
@@ -391,14 +397,14 @@ function base64decode(encoded) {
     return new Buffer(encoded, 'base64').toString('ascii');
 }
 
-app.post('/oauth2/:loginProvider/token', (req, res) => {
+app.post('/oauth2proxy/:loginProvider/token', (req, res) => {
     const {client_id, code, code_verifier, redirect_uri, grant_type} = req.body;
     const {loginProvider} = req.params;
 
     const configuration = loginProviders[loginProvider];
     const {token_endpoint, client_secret} = configuration;
 
-    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type, code_verifier});
+    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, code_verifier, grant_type});
     console.log(payload);
 
     fetch(token_endpoint, {
@@ -412,9 +418,10 @@ app.post('/oauth2/:loginProvider/token', (req, res) => {
         return response.json();
     }).then(tokenResponse => {
         console.log(tokenResponse);
-        const idToken = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        console.log(id_token);
         res.send({
-            username: idToken.email
+            username: id_token.name
         });
     }).catch(err => console.error);
 });
@@ -447,6 +454,10 @@ class App extends React.Component {
 }
 ```
 
+Voila!
+
+![App screenshot showing Google account information](doc/screenshots/google-user-screen.png)
+
 ### Loose ends
 
 Currently, the App only get the user name from the backend and does not maintain it's authentication with the backend for later API calls. For a real scenario, you would either return the `id_token` or `access_token` to the client for use in later API calls, or the backend would generate it's own internal session with an access token that is sent to the client.
@@ -455,15 +466,17 @@ Currently, the App only get the user name from the backend and does not maintain
 
 ### Azure Active Directory
 
+Azure Active Directory gives a unique possibility for developing business-to-business applications. In general, when you receive an email address and user profile information from Azure Active Directory, you can be sure that this email address has been verified according to the standards of the organization in question. In particular, if a user logs in as `someone@soprasteria.com` through Azure Active Directory, you know that my employer has verified the identity of that person.
+
 It's very important to note: You don't need to have admin access to an existing Active Directory in order to create applications where users from *any* Active Directory can authorize themselves. This can literally be done with a Azure trial account. This is done through what's called Azure Active Directory Multi Tenant authorization.
 
 In order to register a Azure Active Directory application:
 
-1. Create a [new Azure Active Directory](https://portal.azure.com/#create/Microsoft.AzureActiveDirectory) if you don't already have one. Here, you can control applications (and users for the directory, but you don't need that)
+1. Create a [new Azure Active Directory](https://portal.azure.com/#create/Microsoft.AzureActiveDirectory) if you don't already have a directory where you are admin. Here, you can control applications (and users for the directory, but you don't need that)
 2. When you have created a new Azure Active Directory, you can switch between your directory with the top right-hand menu in the Azure portal
 3. Create a new [Application Registration](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps) of type "Web app/API"
 4. Under Settings > Properties, make sure you switch Multi-tenanted to "yes"
-5. Under Settings > Reply URLs for your application, add your redirect_uri: `http://localhost:3000/oauth2/azure/oauth2callback`
+5. Under Settings > Reply URLs for your application, add your redirect_uri: `http://localhost:8084/oauth2proxy/azure/oauth2callback`
 6. Under Settings > Keys create a new key and save it in the configuration for your server (this should not be checked into git!)
 
 Now, you can add the following configuration in the client:
@@ -487,6 +500,18 @@ const loginProviders = {
   },
 ```
 
+When the user logs in with "Your organization", they will be presented first with a generic Azure Active Directory login:
+
+![Azure Active Directory Login](doc/screenshots/azure-login-screen.png)
+
+When you enter your organization email address, you are presented with a branded login screen:
+
+![Azure Active Directory Organization Login](doc/screenshots/azure-login-org-screen.png)
+
+The password here is generally the same as the user uses to log onto their work computer. The first time a user logs into a Multi-tenant application, they are prompted with a onsent screen:
+
+![Azure Active Directory Consent](doc/screenshots/azure-consent-screen.png)
+
 For the server, add the configuration:
 
 ```javascript
@@ -506,9 +531,9 @@ const loginProviders = {
 The claims of the `id_token` returned will be somewhat different from what we got back from Google, so reading the id_token must be updated as well:
 
 ```javascript
-        const idToken = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+        const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
         res.send({
-            username: idToken.name || idToken.email
+            username: id_token.name || id_token.email
         });
 ```
 
@@ -519,10 +544,10 @@ The most important properties are `name`, `upn` (which contains the email addres
 
 1. Oauth2 is great for many authentication scenarios, whether commercial, internal in an organization or in public sector
 2. Standardization makes it easy to integrate many login providers
-3. Mobile apps should use an external browser to authenticate the user and return to the app via a registered URL [RFC link!]
+3. Mobile apps should use an external browser to authenticate the user and return to the app via a registered URL, as per [RFC 8252](https://tools.ietf.org/html/rfc8252)
 4. Mobile apps should use code_challenge and code_verifier [PKCE](https://tools.ietf.org/html/rfc7636) to defeat malicious apps on the same OS
-5. In Android, use VIEW intent to register a browser URL; in iOS, add ... to `info.plist`.
-6. Mobile apps need a backend to protect the client_secret for the token request
+5. In Android, use `VIEW` intent to register a browser URL; in iOS, add `CFBundleURLTypes` to `info.plist`.
+6. Mobile apps need a backend to protect the `client_secret` for the token request
+7. Login providers like Azure Active Directory and ID-porten (Norway) can provide your app with high confidence of the actual identity of the user.
 
-See the complete code on my github account.
-
+See the [complete code](https://github.com/jhannes/react-native-oauth-demo) on my github account.
