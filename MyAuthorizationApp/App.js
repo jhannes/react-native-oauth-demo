@@ -136,7 +136,7 @@ const loginProviders = {
     client_id: Config.IDPORTEN_CLIENT_ID, // The Application ID of your Application Registration
     response_type: 'code',
     scope: 'openid profile',
-    code_challenge_method: undefined, // Currently, ID-porten seems to return invalid_grant when I use PKCE
+    code_challenge_method: "S256",
     authorization_endpoint: Config.IDPORTEN_AUTHORITY + "/idporten-oidc-provider/authorize",
     token_endpoint: Config.BACKEND + '/idporten/token',
     grant_type: "authorization_code",
@@ -154,7 +154,7 @@ class LoginView extends React.Component {
 
     // PKCE - https://tools.ietf.org/html/rfc7636
     //  - Protect against other apps who register our application url scheme
-    const code_verifier = code_challenge_method && randomString({length: 40});
+    const code_verifier = code_challenge_method && randomString({length: 45});
     const code_challenge = code_challenge_method && sha256base64urlencode(code_verifier);
 
     // Protect against rogue web pages that try redirect the user to authorize (XSRF)
