@@ -108,24 +108,24 @@ const loginProviders = {
     title: "Google",
     redirect_uri: Config.BACKEND + '/google/oauth2callback',
     client_id: Config.GOOGLE_CLIENT_ID,
+    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    token_endpoint: Config.BACKEND + '/google/token',
     response_type: 'code',
     scope: 'profile email',
     code_challenge_method: "S256",
-    authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-    token_endpoint: Config.BACKEND + '/google/token',
     grant_type: "authorization_code"
   },
-  // For configuration values, see https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration
+  // For configuration values, see https://login.microsoftonline.com/common/.well-known/openid-configuration
   // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
   azure: {
     title: "Your organization",
     redirect_uri: Config.BACKEND + '/azure/oauth2callback',
     client_id: Config.AZURE_CLIENT_ID, // The Application ID of your Application Registration
-    response_type: 'code',
-    scope: 'openid profile User.Read',
-    code_challenge_method: "S256",
     authorization_endpoint: "https://login.microsoftonline.com/common/oauth2/authorize",
     token_endpoint: Config.BACKEND + '/azure/token',
+    code_challenge_method: "S256",
+    response_type: 'code',
+    scope: 'openid profile User.Read',
     grant_type: "authorization_code",
   },
   // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
@@ -134,11 +134,11 @@ const loginProviders = {
     title: "ID-porten",
     redirect_uri: Config.BACKEND + '/idporten/oauth2callback',
     client_id: Config.IDPORTEN_CLIENT_ID, // The Application ID of your Application Registration
-    response_type: 'code',
-    scope: 'openid profile',
-    code_challenge_method: "S256",
     authorization_endpoint: Config.IDPORTEN_AUTHORITY + "/idporten-oidc-provider/authorize",
     token_endpoint: Config.BACKEND + '/idporten/token',
+    code_challenge_method: "S256",
+    response_type: 'code',
+    scope: 'openid profile',
     grant_type: "authorization_code",
   }
 };

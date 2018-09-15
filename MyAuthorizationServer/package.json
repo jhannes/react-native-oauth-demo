@@ -12,6 +12,9 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
+    "express-device": "^0.4.2",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.15.6",
     "node-fetch": "^2.2.0",
     "qs": "^6.5.2"
   }

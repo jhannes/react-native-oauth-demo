@@ -1,0 +1,15 @@
+
+
+{{#each logins}}
+    <p>Logged in as: {{this.name}} ({{this.id}}) at {{this.authority}}</p>
+{{/each}}
+
+
+
+<h3>Please log in</h3>
+
+{{#each providers}}
+    <h2>Log in with {{this.title}}</h2>
+
+    <p><a href="{{this.authorization_url}}">Log in</a></p>
+{{/each}}
