@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "MyAuthorizationApp"
+		},
+		{
+			"path": "MyAuthorizationServer"
+		}
+	],
+	"settings": {}
+}

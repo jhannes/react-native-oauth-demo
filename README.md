@@ -4,11 +4,11 @@ In this tutorial, I will walk you through setting up a React Native application 
 
 If your application can know which user it talks with for sure, you can do anything. If you cannot trust your user, you can do nothing.
 
-This is why Oauth2 is important. Oauth2 provides a common way for Identity Providers to link their users to third party applications. "Connect with Facebook", or Google, or Twitter, or GitHub has enabled many new applications in the consumer market. If you're new to OAuth2, I recommend you start with the excellent [OAuth 2.0 Simpified](https://aaronparecki.com/oauth-2-simplified/) guide.
+This is why Open ID Connect is important. Open ID Connect provides a common way for Identity Providers to link their users to third party applications. "Connect with Facebook", or Google, or Twitter, or GitHub has enabled many new applications in the consumer market. If you're new to OAuth 2.0 - the foundation of Open ID Connect, I recommend you start with the excellent [OAuth 2.0 Simpified](https://aaronparecki.com/oauth-2-simplified/) guide.
 
 But in the business and public sector, these Identity Providers will not do. Luckily, you can use other providers here.
 
-Very many organizations use Active Directory as a hub in their Identity and Access Management. Most of these organizations have one or more cloud-based applications that authorize with their Active Directory through Azure AD and Oauth2. Through multi-tenant Azure AD applications, you can authenticate your app with any organization's Active Directory, without involving any admins in these organizations. This means that you can know for sure if a user is recognized by a particular business.
+Very many organizations use Active Directory as a hub in their Identity and Access Management. Most of these organizations have one or more cloud-based applications that authorize with their Active Directory through Azure AD and Open ID Connect. Through multi-tenant Azure AD applications, you can authenticate your app with any organization's Active Directory, without involving any admins in these organizations. This means that you can know for sure if a user is recognized by a particular business.
 
 If you are developing solutions in the Norwegian public sector, you may also be interested in knowing that ID-porten, the national portal for authorization of end users now supports Oauth2 and OpenID Connect. This means for sure that you can recognize that you're talking to a Norwegian resident.
 
@@ -19,7 +19,7 @@ When developing native applications, including React Native, the strongly recomm
 1. An unidentified user opens the app
 2. The app presents the user with a number of login options
 3. When the user chooses a login provider, the app opens *an external browser window* with the selected provider
-4. The user performs authorization (if needed) and gives consent (if needed)
+4. The user performs authentication (if needed) and gives consent (if needed)
 5. The browser is redirected back to an URL controlled by the app. This relaunches the app an autentication code
 6. The app sends the authentication code to it's own backend, which adds a client_secret (only known by the backend) and forwards the request to the identity provider's token endpoint
 7. The backend server receives access_token and optionally identity_tokens and refresh_tokens. It uses these to establish the user's identity
@@ -58,9 +58,11 @@ Every login provider will require some setup. For Google, this is what you need 
    `http://localhost:8084/oauth2proxy/google/oauth2callback` is a good redirect URI
 6. When you complete the registration, you will get a client id and a client secret. At first
    we will need to save the client id to a file named `env.js`:
-   ```
+
+   ```javascript
    GOOGLE_CLIENT_ID=...
    ```
+
 7. We will use [React Native Config](https://github.com/luggit/react-native-config) to
    handle the configuration. Run `npm install react-native-config --save-dev` to
    install it, and put the line `react-native link react-native-config` to install
@@ -200,7 +202,7 @@ Of course, the redirect_uri needs to bring the user back to the application. Rig
 
 ### Handle the redirect
 
-When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the `redirect_uri`. We want this to use an application URL scheme like `myoauth2app://` to redirect back to the app. However, Open ID providers don't let you use custom URL schemes for your redirect_uri. The solution is to redirect to a backend (during development http://localhost:8084) which redirects back to the app URL.
+When the user logs in and consents to the application getting to know them better, the login provider redirects the user's browser to the `redirect_uri`. We want this to use an application URL scheme like `myoauth2app://` to redirect back to the app. However, Open ID providers don't let you use custom URL schemes for your redirect_uri. The solution is to redirect to a backend (during development [http://localhost:8084](http://localhost:8084)) which redirects back to the app URL.
 
 When you debug in the iPhone emulator, localhost URLs will automatically redirect to the host computer. In order to achieve the same in Android, just use the following ADB command:
 
@@ -227,7 +229,6 @@ app.get('/oauth2/:loginProvider/oauth2callback', (req, res) => {
 
 app.listen(8084, () => console.log('Example app listening on port 8084!'))
 ```
-
 
 ### Handle the redirect (Android)
 
@@ -265,10 +266,10 @@ In order to handle the redirect back to the application, your application must r
 
 ### Handle the redirect (iOS)
 
-You should set up XCode to handle `myoauth2app://`-urls. See ][https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app]. In React Native, you need to do make the following changes:
+You should set up XCode to handle `myoauth2app://`-urls. See [Apple's documentation]([https://developer.apple.com/documentation/uikit/core_app/allowing_apps_and_websites_to_link_to_your_content/defining_a_custom_url_scheme_for_your_app). In React Native, you need to do make the following changes:
 
 1. Update the app info.plist to contain `myoauth2app` as a URL
-2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See [https://facebook.github.io/react-native/docs/linking]
+2. Add `openURL` and `continueUserActivity` to `ios/MyAuthorizationApp/AppDelegate.m`. See [React Native documentation](https://facebook.github.io/react-native/docs/linking).
 
 This is what is added to `info.plist`:
 
@@ -285,7 +286,8 @@ This is what is added to `info.plist`:
       </array>
     </dict>
   </array>
-```
+
+
 This is what's added to `AppDelegate.m`:
 
 ```objectivec

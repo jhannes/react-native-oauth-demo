@@ -1,32 +1,40 @@
 @startuml
 
+title OpenID Connect with Mobile App
+
 actor user
-participant app
-participant browser
-participant mobile
-participant backend
+box "Mobile Device"
+    participant app
+    participant browser
+    participant mobile
+end box
+box "App Backend"
+    participant backend
+end box
 participant provider
 
 user -> app: Opens app
 user <-- app: Display login options
-user -> app: Select login option
-app -> app: create and store code_verifier
-app -> app: code_challenge = sha256(code_verifier)
-user <-- app: Authorization url, client_id, code_challenge, return_uri
-user -> browser: Authorization url
-browser -> provider: Authorization url, client_id, code_challenge, return_uri
+user -> app ++: Select login option
+app -> app: create and save code_verifier
+app -> app: code_challenge \n = sha256(code_verifier)
+user <-- app --: Authorization url, \nclient_id, code_challenge, return_uri
+user --> browser ++: Authorization url, \nclient_id, code_challenge, return_uri
+browser -> provider: Authorization url, \nclient_id, code_challenge, return_uri
 browser <-- provider: Login page
 user -> browser: Username, password, consent
 browser -> provider: Username, password, consent
-browser <-- provider: redirect_uri, code
-browser -> mobile: Find app for redirect_uri
-mobile -> app: redirect_uri, code
+browser <-- provider: redirect_uri (https), code
+browser -> backend: redirect_uri (https://), code
+browser <-- backend: redirect_uri (mobileApp://), code
+browser -> mobile --: Find app for redirect_uri
+mobile -> app++: redirect_uri, code
 app -> app: Lookup code_verifier
-app -> backend: client_id, code_verifier, code
-backend -> provider: client_id, client_secre, code_verifier, code
-backend <-- provider: access_token, id_token, refresh_token
-backend -> backend: Decode username, organization from id_token
-app <-- backend: username, organization
-user <-- app: Display appropriate information for username in organization
+app -> backend ++: client_id, code_verifier, code
+backend -> provider: client_id, client_secret,\ncode, code_verifier
+backend <-- provider: access_token,\nid_token,\nrefresh_token
+backend -> backend: Decode username, organization\nfrom id_token
+app <-- backend --: username, organization
+user <-- app --: Display appropriate information\nfor username in organization
 
 @enduml
