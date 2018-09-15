@@ -8,6 +8,8 @@ const device = require('express-device');
 const exphbs  = require('express-handlebars');
 const session = require('express-session');
 
+const loginProviders = require('./loginProviders');
+
 app.use(bodyParser.urlencoded());
 app.use(device.capture());
 app.use(session({
@@ -16,7 +18,24 @@ app.use(session({
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-const Config = require('./env');
+
+function base64decode(encoded) {
+    return new Buffer(encoded, 'base64').toString('ascii');
+}
+
+function postForm(url, formData) {
+    const payload = qs.stringify(formData);
+    console.log(payload);
+    
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/x-www-form-urlencoded'
+        },
+        body: payload
+    });
+}
+
 
 function authorization_url({authorization_endpoint, redirect_uri, client_id, response_type, scope}) {
     const params = {client_id, redirect_uri, response_type, scope};
@@ -39,8 +58,7 @@ app.get('/', (req, res) => {
     res.render("index", {
         providers, logins
     });
-})
-
+});
 
 app.get('/oauth2proxy/:loginProvider/oauth2callback', async (req, res) => {
     if (req.device == 'mobile') {
@@ -51,19 +69,12 @@ app.get('/oauth2proxy/:loginProvider/oauth2callback', async (req, res) => {
 
         const configuration = loginProviders[loginProvider];
         const {client_id, redirect_uri, grant_type, token_endpoint, client_secret} = configuration;
-        const payload = qs.stringify({client_id, client_secret, code, redirect_uri, grant_type});
-        console.log(payload);
     
-        const response = await fetch(token_endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/x-www-form-urlencoded'
-            },
-            body: payload
-        });
+        const response = await postForm(token_endpoint,
+            {client_id, client_secret, code, redirect_uri, grant_type});
         const tokenResponse = await response.json();
+        console.log(tokenResponse);
         const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
-        console.log(id_token);
 
         if (!req.session.logins) {
             req.session.regenerate(() => {
@@ -75,87 +86,26 @@ app.get('/oauth2proxy/:loginProvider/oauth2callback', async (req, res) => {
             req.session.logins[loginProvider] = id_token
             res.redirect("/");
         }
-
     }
 });
 
 
-const loginProviders = {
-    // For configuration values, see https://accounts.google.com/.well-known/openid-configuration
-    // For Administration, see https://console.developers.google.com/apis/credentials
-    google: {
-        title: "Google",
-        client_id: Config.GOOGLE_CLIENT_ID,
-        client_secret: Config.GOOGLE_CLIENT_SECRET,
-        redirect_uri: Config.BACKEND + '/google/oauth2callback',
-        authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-        token_endpoint: 'https://accounts.google.com/o/oauth2/token',
-        response_type: 'code',
-        scope: 'profile email',
-        grant_type: "authorization_code"
-    },
-    // For configuration values, see https://login.microsoftonline.com/common/.well-known/openid-configuration
-    // For Administration, see https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps
-    azure: {
-        title: "Azure",
-        client_id: Config.AZURE_CLIENT_ID,
-        client_secret: Config.AZURE_CLIENT_SECRET,
-        redirect_uri: Config.BACKEND + '/azure/oauth2callback',
-        authorization_endpoint: "https://login.microsoftonline.com/common/oauth2/authorize",
-        token_endpoint: 'https://login.microsoftonline.com/common/oauth2/token',
-        response_type: 'code',
-        scope: 'openid profile User.Read',
-        grant_type: "authorization_code",
-    },
-    // For configuration, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_hvordan_komme_igang.html#well-known-endepunkt
-    /// For setup instructions, see https://difi.github.io/idporten-oidc-dokumentasjon/oidc_func_clientreg.html
-    idporten: {
-        title: "ID-porten",
-        client_id: Config.IDPORTEN_CLIENT_ID, // The Application ID of your Application Registration
-        client_secret: Config.IDPORTEN_CLIENT_SECRET,
-        redirect_uri: Config.BACKEND + '/idporten/oauth2callback',
-        // IDPORTEN_AUTHORITY must match between app and server
-        authorization_endpoint: Config.IDPORTEN_AUTHORITY + "/idporten-oidc-provider/authorize",
-        token_endpoint: Config.IDPORTEN_AUTHORITY + '/idporten-oidc-provider/token',
-        response_type: 'code',
-        scope: 'openid profile',
-        grant_type: "authorization_code",
-    }
-};
-
-function base64decode(encoded) {
-    return new Buffer(encoded, 'base64').toString('ascii');
-}
-
-app.post('/oauth2proxy/:loginProvider/token', (req, res) => {
+app.post('/oauth2proxy/:loginProvider/token', async (req, res) => {
     const {client_id, code, code_verifier, redirect_uri, grant_type} = req.body;
     const {loginProvider} = req.params;
 
     const configuration = loginProviders[loginProvider];
     const {token_endpoint, client_secret} = configuration;
 
-    const payload = qs.stringify({client_id, client_secret, code, redirect_uri, code_verifier, grant_type});
-    console.log(payload);
-
-    fetch(token_endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/x-www-form-urlencoded'
-        },
-        body: payload
-    }).then(response => {
-        console.log(response.status);
-        return response.json();
-    }).then(tokenResponse => {
-        console.log(tokenResponse);
-        const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
-        console.log(id_token);
-        res.send({
-            username: id_token.name || id_token.email || id_token.pid
-        });
-    }).catch(err => console.error);
+    const response = await postForm(token_endpoint,
+        {client_id, client_secret, code, redirect_uri, code_verifier, grant_type});
+    const tokenResponse = await response.json();
+    console.log(tokenResponse);
+    const id_token = JSON.parse(base64decode(tokenResponse.id_token.split('.')[1]));
+    res.send({
+        username: id_token.name || id_token.email || id_token.pid
+    });
 });
-
 
 
 app.listen(8084, () => console.log('Example app listening on port 8084!'))
